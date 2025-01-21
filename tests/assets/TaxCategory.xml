@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<cac:TaxCategory xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                 xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+    <cbc:ID>S</cbc:ID>
+    <cbc:Percent>7</cbc:Percent>
+    <cac:TaxScheme>
+        <cbc:ID>VAT</cbc:ID>
+    </cac:TaxScheme>
+</cac:TaxCategory>
