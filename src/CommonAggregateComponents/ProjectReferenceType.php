@@ -78,9 +78,9 @@ class ProjectReferenceType
         }
     }
 
-    public function addWorkPhaseReference(WorkPhaseReferenceType $workPhaseReference): void
+    public function addWorkPhaseReference(?WorkPhaseReferenceType $workPhaseReference = null): WorkPhaseReferenceType
     {
-        $this->workPhaseReferences []= $workPhaseReference;
+        return $this->workPhaseReferences []= $workPhaseReference ?? new WorkPhaseReferenceType;
     }
 
 

@@ -122,9 +122,9 @@ class BillingReferenceType
         }
     }
 
-    public function addBillingReferenceLine(BillingReferenceLineType $billingReferenceLine): void
+    public function addBillingReferenceLine(?BillingReferenceLineType $billingReferenceLine = null): BillingReferenceLineType
     {
-        $this->billingReferenceLines []= $billingReferenceLine;
+        return $this->billingReferenceLines []= $billingReferenceLine ?? new BillingReferenceLineType;
     }
 
 }

@@ -131,9 +131,9 @@ class ItemPropertyType
         }
     }
 
-    public function addValueQualifier(TextType $valueQualifier): void
+    public function addValueQualifier(?TextType $valueQualifier = null): TextType
     {
-        $this->valueQualifiers []= $valueQualifier;
+        return $this->valueQualifiers []= $valueQualifier ?? new TextType;
     }
 
     public function getImportanceCode(): ?CodeType
@@ -165,9 +165,9 @@ class ItemPropertyType
             $this->addListValue($listValue);
         }
     }
-    public function addListValue(TextType $listValue): void
+    public function addListValue(?TextType $listValue = null): TextType
     {
-        $this->listValues []= $listValue;
+        return $this->listValues []= $listValue ?? new TextType;
     }
 
     public function getUsabilityPeriod(): ?PeriodType
@@ -200,9 +200,9 @@ class ItemPropertyType
         }
     }
 
-    public function addItemPropertyGroup(ItemPropertyGroupType $itemPropertyGroup): void
+    public function addItemPropertyGroup(?ItemPropertyGroupType $itemPropertyGroup = null): ItemPropertyGroupType
     {
-        $this->itemPropertyGroups []= $itemPropertyGroup;
+        return $this->itemPropertyGroups []= $itemPropertyGroup ?? new ItemPropertyGroupType;
     }
 
     public function getRangeDimension(): ?DimensionType

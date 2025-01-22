@@ -74,9 +74,9 @@ class CustomerPartyType
         }
     }
 
-    public function addAdditionalAccountID(IdentifierType $additionalAccountID): void
+    public function addAdditionalAccountID(?IdentifierType $additionalAccountID = null): IdentifierType
     {
-        $this->additionalAccountIDs []= $additionalAccountID;
+        return $this->additionalAccountIDs []= $additionalAccountID ?? new IdentifierType;
     }
 
     public function getParty(): ?PartyType

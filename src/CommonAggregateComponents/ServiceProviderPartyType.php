@@ -67,9 +67,9 @@ class ServiceProviderPartyType
         }
     }
 
-    public function addServiceType(TextType $type): void
+    public function addServiceType(?TextType $type = null): TextType
     {
-        $this->serviceTypes []= $type;
+        return $this->serviceTypes []= $type ?? new TextType;
     }
 
     public function getParty(): ?PartyType

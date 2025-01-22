@@ -94,9 +94,9 @@ class PartyTaxSchemeType
             $this->addExemptionReason($reason);
         }
     }
-    public function addExemptionReason(TextType $reason): void
+    public function addExemptionReason(?TextType $reason = null): TextType
     {
-        $this->exemptionReasons []= $reason;
+        return $this->exemptionReasons []= $reason ?? new TextType;
     }
 
     public function getRegistrationAddress(): ?AddressType

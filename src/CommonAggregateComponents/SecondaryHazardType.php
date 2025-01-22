@@ -87,8 +87,8 @@ class SecondaryHazardType
         }
     }
 
-    public function addExtension(TextType $extension): void
+    public function addExtension(?TextType $extension = null): TextType
     {
-        $this->extensions []= $extension;
+        return $this->extensions []= $extension ?? new TextType;
     }
 }

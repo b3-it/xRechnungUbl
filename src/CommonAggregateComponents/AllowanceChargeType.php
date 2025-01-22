@@ -103,9 +103,9 @@ class AllowanceChargeType
         }
     }
 
-    public function addAllowanceChargeReason(TextType $allowanceChargeReason): void
+    public function addAllowanceChargeReason(?TextType $allowanceChargeReason = null): TextType
     {
-        $this->allowanceChargeReasons []= $allowanceChargeReason;
+        return $this->allowanceChargeReasons []= $allowanceChargeReason ?? new TextType;
     }
 
     public function getMultiplierFactorNumeric(): ?NumericType
@@ -199,9 +199,9 @@ class AllowanceChargeType
         }
     }
 
-    public function addTaxCategory(TaxCategoryType $taxCategory): void
+    public function addTaxCategory(?TaxCategoryType $taxCategory = null): TaxCategoryType
     {
-        $this->taxCategories []= $taxCategory;
+        return $this->taxCategories []= $taxCategory ?? new TaxCategoryType;
     }
 
     public function getTaxTotal(): ?TaxTotalType
@@ -234,9 +234,9 @@ class AllowanceChargeType
         }
     }
 
-    public function addPaymentMeans(PaymentMeansType $paymentMeans): void
+    public function addPaymentMeans(?PaymentMeansType $paymentMeans = null): PaymentMeansType
     {
-        $this->paymentMeans []= $paymentMeans;
+        return $this->paymentMeans []= $paymentMeans ?? new PaymentMeansType;
     }
 
 }

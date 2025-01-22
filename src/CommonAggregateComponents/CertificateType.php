@@ -75,9 +75,9 @@ class CertificateType
         }
     }
 
-    public function addRemark(TextType $remark): void
+    public function addRemark(?TextType $remark = null): TextType
     {
-        $this->remarks []= $remark;
+        return $this->remarks []= $remark ?? new TextType();
     }
 
     public function getIssuerParty(): ?PartyType
@@ -106,9 +106,9 @@ class CertificateType
         }
     }
 
-    public function addDocumentReference(DocumentReferenceType $documentReference): void
+    public function addDocumentReference(?DocumentReferenceType $documentReference = null): DocumentReferenceType
     {
-        $this->documentReferences []= $documentReference;
+        return $this->documentReferences []= $documentReference ?? new DocumentReferenceType;
     }
 
     /**
@@ -131,8 +131,8 @@ class CertificateType
         }
     }
 
-    public function addSignature(SignatureType $signature): void
+    public function addSignature(?SignatureType $signature = null): SignatureType
     {
-        $this->signatures []= $signature;
+        return $this->signatures []= $signature ?? new SignatureType;
     }
 }

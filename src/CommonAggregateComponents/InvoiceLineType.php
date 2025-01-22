@@ -131,9 +131,9 @@ class InvoiceLineType
         }
     }
 
-    public function addNote(TextType $note): void
+    public function addNote(?TextType $note = null): TextType
     {
-        $this->notes []= $note;
+        return $this->notes []= $note ?? new TextType;
     }
 
     public function getInvoicedQuantity(): ?QuantityType
@@ -225,9 +225,9 @@ class InvoiceLineType
             $this->addInvoicePeriod($invoicePeriod);
         }
     }
-    public function addInvoicePeriod(PeriodType $invoicePeriod): void
+    public function addInvoicePeriod(?PeriodType $invoicePeriod = null): PeriodType
     {
-        $this->invoicePeriods []= $invoicePeriod;
+        return $this->invoicePeriods []= $invoicePeriod ?? new PeriodType;
     }
 
     /**
@@ -250,9 +250,9 @@ class InvoiceLineType
         }
     }
 
-    public function addOrderLineReference(OrderLineReferenceType $orderLineReference): void
+    public function addOrderLineReference(?OrderLineReferenceType $orderLineReference = null): OrderLineReferenceType
     {
-        $this->orderLineReferences []= $orderLineReference;
+        return $this->orderLineReferences []= $orderLineReference ?? new OrderLineReferenceType;
     }
 
     /**
@@ -275,9 +275,9 @@ class InvoiceLineType
         }
     }
 
-    public function addDespatchLineReference(LineReferenceType $despatchLineReference): void
+    public function addDespatchLineReference(?LineReferenceType $despatchLineReference = null): LineReferenceType
     {
-        $this->despatchLineReferences []= $despatchLineReference;
+        return $this->despatchLineReferences []= $despatchLineReference ?? new LineReferenceType;
     }
 
     /**
@@ -300,9 +300,9 @@ class InvoiceLineType
         }
     }
 
-    public function addReceiptLineReference(LineReferenceType $receiptLineReference): void
+    public function addReceiptLineReference(?LineReferenceType $receiptLineReference = null): LineReferenceType
     {
-        $this->receiptLineReferences []= $receiptLineReference;
+        return $this->receiptLineReferences []= $receiptLineReference ?? new LineReferenceType;
     }
 
     /**
@@ -325,9 +325,9 @@ class InvoiceLineType
         }
     }
 
-    public function addBillingReference(BillingReferenceType $billingReference): void
+    public function addBillingReference(?BillingReferenceType $billingReference = null): BillingReferenceType
     {
-        $this->billingReferences []= $billingReference;
+        return $this->billingReferences []= $billingReference ?? new BillingReferenceType;
     }
 
     /**
@@ -350,9 +350,9 @@ class InvoiceLineType
         }
     }
 
-    public function addDocumentReference(DocumentReferenceType $documentReference): void
+    public function addDocumentReference(?DocumentReferenceType $documentReference = null): DocumentReferenceType
     {
-        $this->documentReferences []= $documentReference;
+        return $this->documentReferences []= $documentReference ?? new DocumentReferenceType;
     }
 
     public function getPricingReference(): ?PricingReferenceType
@@ -395,10 +395,9 @@ class InvoiceLineType
         }
     }
 
-    public function addDelivery(DeliveryType $delivery): void
+    public function addDelivery(?DeliveryType $delivery = null): DeliveryType
     {
-
-        $this->deliveries []= $delivery;
+        return $this->deliveries []= $delivery ?? new DeliveryType();
     }
 
     /**
@@ -421,9 +420,9 @@ class InvoiceLineType
         }
     }
 
-    public function addPaymentTerm(PaymentTermsType $paymentTerm): void
+    public function addPaymentTerm(?PaymentTermsType $paymentTerm = null): PaymentTermsType
     {
-        $this->paymentTerms []= $paymentTerm;
+        return $this->paymentTerms []= $paymentTerm ?? new PaymentTermsType;
     }
 
     /**
@@ -446,9 +445,9 @@ class InvoiceLineType
         }
     }
 
-    public function addAllowanceCharge(AllowanceChargeType $allowanceCharge): void
+    public function addAllowanceCharge(?AllowanceChargeType $allowanceCharge = null): AllowanceChargeType
     {
-        $this->allowanceCharges []= $allowanceCharge;
+        return $this->allowanceCharges []= $allowanceCharge ?? new AllowanceChargeType;
     }
 
     /**
@@ -471,9 +470,9 @@ class InvoiceLineType
         }
     }
 
-    public function addTaxTotal(TaxTotalType $taxTotal): void
+    public function addTaxTotal(?TaxTotalType $taxTotal = null): TaxTotalType
     {
-        $this->taxTotals []= $taxTotal;
+        return $this->taxTotals []= $taxTotal ?? new TaxTotalType;
     }
 
     /**
@@ -496,9 +495,9 @@ class InvoiceLineType
         }
     }
 
-    public function addWithholdingTaxTotal(TaxTotalType $withholdingTaxTotal): void
+    public function addWithholdingTaxTotal(?TaxTotalType $withholdingTaxTotal = null): TaxTotalType
     {
-        $this->withholdingTaxTotals []= $withholdingTaxTotal;
+        return $this->withholdingTaxTotals []= $withholdingTaxTotal ?? new TaxTotalType;
     }
 
     public function getItem(): ?ItemType
@@ -551,9 +550,9 @@ class InvoiceLineType
         }
     }
 
-    public function addSubInvoiceLine(InvoiceLineType $subInvoiceLine): void
+    public function addSubInvoiceLine(?InvoiceLineType $subInvoiceLine = null): InvoiceLineType
     {
-        $this->subInvoiceLines []= $subInvoiceLine;
+        return $this->subInvoiceLines []= $subInvoiceLine ?? new InvoiceLineType;
     }
 
     public function getItemPriceExtension(): ?PriceExtensionType

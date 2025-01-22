@@ -47,8 +47,8 @@ class PricingReferenceType
             $this->addAlternativeConditionPrice($alternativeConditionPrice);
         }
     }
-    public function addAlternativeConditionPrice(PriceType $alternativeConditionPrice): void
+    public function addAlternativeConditionPrice(?PriceType $alternativeConditionPrice = null): PriceType
     {
-        $this->alternativeConditionPrices []= $alternativeConditionPrice;
+        return $this->alternativeConditionPrices []= $alternativeConditionPrice ?? new PriceType;
     }
 }

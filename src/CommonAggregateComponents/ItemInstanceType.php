@@ -118,9 +118,9 @@ class ItemInstanceType
         }
     }
 
-    public function addAdditionalItemProperty(ItemPropertyType $additionalItemProperty): void
+    public function addAdditionalItemProperty(?ItemPropertyType $additionalItemProperty = null): ItemPropertyType
     {
-        $this->additionalItemProperties []= $additionalItemProperty;
+        return $this->additionalItemProperties []= $additionalItemProperty ?? new ItemPropertyType;
     }
 
     public function getLotIdentification(): ?LotIdentificationType

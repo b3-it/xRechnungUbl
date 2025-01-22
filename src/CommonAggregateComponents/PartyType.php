@@ -209,6 +209,11 @@ class PartyType
         $this->partyTaxSchemes = $partyTaxSchemes;
     }
 
+    public function addPartyTaxScheme(?PartyTaxSchemeType $partyTaxScheme = null): PartyTaxSchemeType
+    {
+        return $this->partyTaxSchemes []= $partyTaxScheme ?? new PartyTaxSchemeType;
+    }
+
     /**
      * @return PartyLegalEntityType[]
      */
@@ -224,6 +229,11 @@ class PartyType
     public function setPartyLegalEntities(array $partyLegalEntities): void
     {
         $this->partyLegalEntities = $partyLegalEntities;
+    }
+
+    public function addPartyLegalEntity(?PartyLegalEntityType $partyLegalEntity = null): PartyLegalEntityType
+    {
+        return $this->partyLegalEntities []= $partyLegalEntity ?? new PartyLegalEntityType();
     }
 
     public function getContact(): ?ContactType

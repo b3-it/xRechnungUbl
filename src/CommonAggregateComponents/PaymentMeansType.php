@@ -128,9 +128,9 @@ class PaymentMeansType
         }
     }
 
-    public function addInstructionNote(TextType $instructionNote): void
+    public function addInstructionNote(?TextType $instructionNote = null): TextType
     {
-        $this->instructionNotes []= $instructionNote;
+        return $this->instructionNotes []= $instructionNote ?? new TextType;
     }
 
     /**
@@ -153,9 +153,9 @@ class PaymentMeansType
         }
     }
 
-    public function addPaymentID(IdentifierType $paymentID): void
+    public function addPaymentID(?IdentifierType $paymentID = null): IdentifierType
     {
-        $this->paymentIDs []= $paymentID;
+        return $this->paymentIDs []= $paymentID ?? new IdentifierType;
     }
 
     public function getCardAccount(): ?CardAccountType

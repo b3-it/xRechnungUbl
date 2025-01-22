@@ -318,14 +318,26 @@ class ItemType
         $this->hazardousItems = $hazardousItems;
     }
 
+    /**
+     * @return TaxCategoryType[]
+     */
     public function getClassifiedTaxCategories(): array
     {
         return $this->classifiedTaxCategories;
     }
 
+    /**
+     * @param TaxCategoryType[] $classifiedTaxCategories
+     * @return void
+     */
     public function setClassifiedTaxCategories(array $classifiedTaxCategories): void
     {
         $this->classifiedTaxCategories = $classifiedTaxCategories;
+    }
+
+    public function addClassifiedTaxCategory(?TaxCategoryType $taxCategory): TaxCategoryType
+    {
+        return $this->classifiedTaxCategories []= $taxCategory ?? new TaxCategoryType();
     }
 
     public function getAdditionalItemProperties(): array

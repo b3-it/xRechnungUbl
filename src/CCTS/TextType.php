@@ -13,7 +13,7 @@ class TextType
      */
     public function __construct(
         #[SerializedName('#')]
-        public string $value,
+        public ?string $value = null,
         #[SerializedName('@languageID')]
         public ?string $languageID = null,
         #[SerializedName('@languageLocaleID')]

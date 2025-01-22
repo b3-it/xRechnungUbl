@@ -10,7 +10,7 @@ class AddressLineType
 {
     public function __construct(
         #[SerializedName('Line')]
-        public TextType $line
+        public ?TextType $line = null
     )
     {}
 }

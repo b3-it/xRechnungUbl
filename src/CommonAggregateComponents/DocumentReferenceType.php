@@ -158,9 +158,9 @@ class DocumentReferenceType
         }
     }
 
-    public function addXPath(TextType $xPath): void
+    public function addXPath(?TextType $xPath = null): TextType
     {
-        $this->xPaths []= $xPath;
+        return $this->xPaths []= $xPath ?? new TextType;
     }
 
     public function getLanguageID(): ?IdentifierType
@@ -222,9 +222,9 @@ class DocumentReferenceType
             $this->addDocumentDescription($documentDescription);
         }
     }
-    public function addDocumentDescription(TextType $documentDescription): void
+    public function addDocumentDescription(?TextType $documentDescription = null): TextType
     {
-        $this->documentDescriptions []= $documentDescription;
+        return $this->documentDescriptions []= $documentDescription ?? new TextType;
     }
 
     public function getAttachment(): ?AttachmentType

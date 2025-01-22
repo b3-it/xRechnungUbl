@@ -82,9 +82,9 @@ class TradeFinancingType
         }
     }
 
-    public function addDocumentReference(DocumentReferenceType $documentReference): void
+    public function addDocumentReference(?DocumentReferenceType $documentReference = null): DocumentReferenceType
     {
-        $this->documentReferences []= $documentReference;
+        return $this->documentReferences []= $documentReference ?? new DocumentReferenceType;
     }
 
     public function getFinancingParty(): ?PartyType

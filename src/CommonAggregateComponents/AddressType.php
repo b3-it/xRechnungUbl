@@ -336,9 +336,9 @@ class AddressType
             $this->addAddressLine($addressLine);
         }
     }
-    public function addAddressLine(AddressLineType $addressLine): void
+    public function addAddressLine(?AddressLineType $addressLine = null): AddressLineType
     {
-        $this->addressLines []= $addressLine;
+        return $this->addressLines []= $addressLine ?? new AddressLineType();
     }
 
     public function getCountry(): ?CountryType
@@ -368,8 +368,8 @@ class AddressType
         $this->locationCoordinates = $locationCoordinates;
     }
 
-    public function addLocationCoordinate(LocationCoordinateType $locationCoordinate): void
+    public function addLocationCoordinate(?LocationCoordinateType $locationCoordinate = null): LocationCoordinateType
     {
-        $this->locationCoordinates []= $locationCoordinate;
+        return $this->locationCoordinates []= $locationCoordinate ?? new LocationCoordinateType;
     }
 }

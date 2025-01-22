@@ -227,9 +227,9 @@ class PersonType
         }
     }
 
-    public function addIdentityDocumentReference(DocumentReferenceType $documentReference): void
+    public function addIdentityDocumentReference(?DocumentReferenceType $documentReference = null): DocumentReferenceType
     {
-        $this->identityDocumentReferences []= $documentReference;
+        return $this->identityDocumentReferences []= $documentReference ?? new DocumentReferenceType;
     }
 
     public function getResidenceAddress(): ?AddressType

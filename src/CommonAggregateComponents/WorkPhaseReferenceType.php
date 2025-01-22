@@ -79,9 +79,9 @@ class WorkPhaseReferenceType
         }
     }
 
-    public function addWorkPhase(TextType $workPhase): void
+    public function addWorkPhase(?TextType $workPhase = null): TextType
     {
-        $this->workPhases []= $workPhase;
+        return $this->workPhases []= $workPhase ?? new TextType;
     }
 
     public function getProgressPercent(): ?PercentType
@@ -134,8 +134,8 @@ class WorkPhaseReferenceType
         }
     }
 
-    public function addWorkOrderDocumentReference(DocumentReferenceType $workOrderDocumentReference): void
+    public function addWorkOrderDocumentReference(?DocumentReferenceType $workOrderDocumentReference = null): DocumentReferenceType
     {
-        $this->workOrderDocumentReferences []= $workOrderDocumentReference;
+        return $this->workOrderDocumentReferences []= $workOrderDocumentReference ?? new DocumentReferenceType;
     }
 }

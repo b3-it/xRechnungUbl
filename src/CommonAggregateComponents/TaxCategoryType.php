@@ -144,9 +144,9 @@ class TaxCategoryType
             $this->addTaxExemptionReason($taxExemptionReason);
         }
     }
-    public function addTaxExemptionReason(TextType $taxExemptionReason): void
+    public function addTaxExemptionReason(?TextType $taxExemptionReason = null): TextType
     {
-        $this->taxExemptionReasons []= $taxExemptionReason;
+        return $this->taxExemptionReasons []= $taxExemptionReason ?? new TextType;
     }
 
     public function getTaxScheme(): ?TaxSchemeType

@@ -82,9 +82,9 @@ class PriceType
             $this->addPriceChangeReason($priceChangeReason);
         }
     }
-    public function addPriceChangeReason(TextType $priceChangeReason): void
+    public function addPriceChangeReason(?TextType $priceChangeReason = null): TextType
     {
-        $this->priceChangeReasons []= $priceChangeReason;
+        return $this->priceChangeReasons []= $priceChangeReason ?? new TextType;
     }
 
     public function getPriceTypeCode(): ?CodeType
@@ -137,9 +137,9 @@ class PriceType
         }
     }
 
-    public function addValidityPeriod(PeriodType $validityPeriod): void
+    public function addValidityPeriod(?PeriodType $validityPeriod = null): PeriodType
     {
-        $this->validityPeriods []= $validityPeriod;
+        return $this->validityPeriods []= $validityPeriod ?? new PeriodType;
     }
 
     public function getPriceList(): ?PriceListType
@@ -172,9 +172,9 @@ class PriceType
         }
     }
 
-    public function addAllowanceCharge(AllowanceChargeType $allowanceCharge): void
+    public function addAllowanceCharge(?AllowanceChargeType $allowanceCharge = null): AllowanceChargeType
     {
-        $this->allowanceCharges []= $allowanceCharge;
+        return $this->allowanceCharges []= $allowanceCharge ?? new AllowanceChargeType;
     }
 
     public function getPricingExchangeRate(): ?ExchangeRateType

@@ -78,8 +78,8 @@ class PhysicalAttributeType
         }
     }
 
-    public function addDescription(TextType $description): void
+    public function addDescription(?TextType $description = null): TextType
     {
-        $this->descriptions []= $description;
+        return $this->descriptions []= $description ?? new TextType;
     }
 }

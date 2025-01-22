@@ -77,9 +77,9 @@ class LocationType
         }
     }
 
-    public function addDescription(TextType $description): void
+    public function addDescription(?TextType $description = null): TextType
     {
-        $this->descriptions []= $description;
+        return $this->descriptions []= $description ?? new TextType;
     }
 
     /**
@@ -102,9 +102,9 @@ class LocationType
         }
     }
 
-    public function addCondition(TextType $condition): void
+    public function addCondition(?TextType $condition = null): TextType
     {
-        $this->conditions []= $condition;
+        return $this->conditions []= $condition ?? new TextType;
     }
 
     public function getCountrySubentity(): ?TextType
@@ -177,9 +177,9 @@ class LocationType
         }
     }
 
-    public function addValidityPeriod(PeriodType $validityPeriod): void
+    public function addValidityPeriod(?PeriodType $validityPeriod = null): PeriodType
     {
-        $this->validityPeriods []= $validityPeriod;
+        return $this->validityPeriods []= $validityPeriod ?? new PeriodType;
     }
 
     public function getAddress(): ?AddressType
@@ -229,8 +229,8 @@ class LocationType
         }
     }
 
-    public function addLocationCoordinate(LocationCoordinateType $locationCoordinate): void
+    public function addLocationCoordinate(?LocationCoordinateType $locationCoordinate = null): LocationCoordinateType
     {
-        $this->locationCoordinates []= $locationCoordinate;
+        return $this->locationCoordinates []= $locationCoordinate ?? new LocationCoordinateType;
     }
 }

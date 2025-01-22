@@ -49,9 +49,9 @@ class PriceExtensionType
         }
     }
 
-    public function addTaxTotal(TaxTotalType $taxTotal): void
+    public function addTaxTotal(?TaxTotalType $taxTotal = null): TaxTotalType
     {
-        $this->taxTotals []= $taxTotal;
+        return $this->taxTotals []= $taxTotal ?? new TaxTotalType;
     }
 
 }

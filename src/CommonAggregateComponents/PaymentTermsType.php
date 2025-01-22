@@ -96,9 +96,9 @@ class PaymentTermsType
         }
     }
 
-    public function addPaymentMeansID(IdentifierType $PaymentMeansID): void
+    public function addPaymentMeansID(?IdentifierType $PaymentMeansID = null): IdentifierType
     {
-        $this->PaymentMeansIDs []= $PaymentMeansID;
+        return $this->PaymentMeansIDs []= $PaymentMeansID ?? new IdentifierType;
     }
 
     public function getPrepaidPaymentReferenceID(): ?IdentifierType
@@ -130,9 +130,9 @@ class PaymentTermsType
             $this->addNote($note);
         }
     }
-    public function addNote(TextType $note): void
+    public function addNote(?TextType $note = null): TextType
     {
-        $this->notes []= $note;
+        return $this->notes []= $note ?? new TextType;
     }
 
     public function getReferenceEventCode(): ?CodeType

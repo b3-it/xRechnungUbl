@@ -72,9 +72,9 @@ class SignatureType
         }
     }
 
-    public function addNote(TextType $note): void
+    public function addNote(?TextType $note = null): TextType
     {
-        $this->notes []= $note;
+        return $this->notes []= $note ?? new TextType;
     }
 
     public function getValidationDate(): ?DateTimeInterface

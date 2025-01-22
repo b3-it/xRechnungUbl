@@ -87,8 +87,8 @@ class TaxTotalType
         $this->taxSubtotals = $taxSubtotals;
     }
 
-    public function addTaxSubtotal(): TaxSubtotalType
+    public function addTaxSubtotal(?TaxSubtotalType $subTotal = null): TaxSubtotalType
     {
-        return $this->taxSubtotals []= new TaxSubtotalType();
+        return $this->taxSubtotals []= $subTotal ?? new TaxSubtotalType();
     }
 }

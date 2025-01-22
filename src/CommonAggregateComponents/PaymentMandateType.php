@@ -151,8 +151,8 @@ class PaymentMandateType
         }
     }
 
-    public function addClause(ClauseType $clause): void
+    public function addClause(?ClauseType $clause = null): ClauseType
     {
-        $this->clauses []= $clause;
+        return $this->clauses []= $clause ?? new ClauseType;
     }
 }

@@ -63,9 +63,9 @@ class SupplierPartyType
         }
     }
 
-    public function addAdditionalAccountID(IdentifierType $id): void
+    public function addAdditionalAccountID(?IdentifierType $id = null): IdentifierType
     {
-        $this->additionalAccountIDs []= $id;
+        return $this->additionalAccountIDs []= $id ?? new IdentifierType;
     }
 
     public function getDataSendingCapability(): ?TextType

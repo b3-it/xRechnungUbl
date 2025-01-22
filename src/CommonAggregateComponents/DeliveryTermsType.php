@@ -64,9 +64,9 @@ class DeliveryTermsType
         }
     }
 
-    public function addSpecialTerm(TextType $specialTerm): void
+    public function addSpecialTerm(?TextType $specialTerm = null): TextType
     {
-        $this->specialTerms []= $specialTerm;
+        return $this->specialTerms []= $specialTerm ?? new TextType;
     }
 
     public function getLossRiskResponsibilityCode(): ?CodeType
@@ -99,9 +99,9 @@ class DeliveryTermsType
         }
     }
 
-    public function addLossRisk(TextType $lossRisk): void
+    public function addLossRisk(?TextType $lossRisk = null): TextType
     {
-        $this->lossRisk []= $lossRisk;
+        return $this->lossRisk []= $lossRisk ?? new TextType;
     }
 
     public function getAmount(): ?AmountType

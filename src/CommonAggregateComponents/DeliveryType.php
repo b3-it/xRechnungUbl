@@ -251,9 +251,9 @@ class DeliveryType
         }
     }
 
-    public function addNotifyParty(PartyType $notifyParty): void
+    public function addNotifyParty(?PartyType $notifyParty = null): PartyType
     {
-        $this->notifyParties []= $notifyParty;
+        return $this->notifyParties []= $notifyParty ?? new PartyType;
     }
 
     public function getDespatch(): ?DespatchType
@@ -286,9 +286,9 @@ class DeliveryType
         }
     }
 
-    public function addDeliveryTerms(DeliveryTermsType $deliveryTerms): void
+    public function addDeliveryTerms(?DeliveryTermsType $deliveryTerms = null): DeliveryTermsType
     {
-        $this->deliveryTerms []= $deliveryTerms;
+        return $this->deliveryTerms []= $deliveryTerms ?? new DeliveryTermsType;
     }
 
     public function getMinimumDeliveryUnit(): ?DeliveryUnitType

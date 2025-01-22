@@ -119,9 +119,9 @@ class HazardousItemType
             $this->addAdditionalInformation($additionalInformation);
         }
     }
-    public function addAdditionalInformation(TextType $additionalInformation): void
+    public function addAdditionalInformation(?TextType $additionalInformation = null): TextType
     {
-        $this->additionalInformations []= $additionalInformation;
+        return $this->additionalInformations []= $additionalInformation ?? new TextType;
     }
 
     public function getUndgCode(): ?CodeType
@@ -283,9 +283,9 @@ class HazardousItemType
             $this->addSecondaryHazard($secondaryHazard);
         }
     }
-    public function addSecondaryHazard(SecondaryHazardType $secondaryHazard): void
+    public function addSecondaryHazard(?SecondaryHazardType $secondaryHazard = null): SecondaryHazardType
     {
-        $this->secondaryHazards []= $secondaryHazard;
+        return $this->secondaryHazards []= $secondaryHazard ?? new SecondaryHazardType();
     }
 
     public function getHazardousGoodsTransits(): array
@@ -338,8 +338,8 @@ class HazardousItemType
         }
     }
 
-    public function addAdditionalTemperature(TemperatureType $additionalTemperature): void
+    public function addAdditionalTemperature(?TemperatureType $additionalTemperature = null): TemperatureType
     {
-        $this->additionalTemperatures []= $additionalTemperature;
+        return $this->additionalTemperatures []= $additionalTemperature ?? new TemperatureType();
     }
 }

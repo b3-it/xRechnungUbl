@@ -88,8 +88,8 @@ class TaxSchemeType
         $this->jurisdictionRegionAddresses = $jurisdictionRegionAddresses;
     }
 
-    public function addJurisdictionRegionAddress(AddressType $address): void
+    public function addJurisdictionRegionAddress(?AddressType $address = null): AddressType
     {
-        $this->jurisdictionRegionAddresses []= $address;
+        return $this->jurisdictionRegionAddresses []= $address ?? new AddressType;
     }
 }

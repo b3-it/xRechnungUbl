@@ -188,9 +188,9 @@ class DespatchType
         }
     }
 
-    public function addInstruction(TextType $instruction): void
+    public function addInstruction(?TextType $instruction = null): TextType
     {
-        $this->instructions []= $instruction;
+        return $this->instructions []= $instruction ?? new TextType;
     }
 
     public function getDespatchAddress(): ?AddressType
@@ -253,9 +253,9 @@ class DespatchType
         }
     }
 
-    public function addNotifyParty(PartyType $party): void
+    public function addNotifyParty(?PartyType $party = null): PartyType
     {
-        $this->notifyParties []= $party;
+        return $this->notifyParties []= $party ?? new PartyType();
     }
 
     public function getContact(): ?ContactType

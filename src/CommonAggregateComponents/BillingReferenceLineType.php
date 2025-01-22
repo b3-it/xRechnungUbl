@@ -62,8 +62,8 @@ class BillingReferenceLineType
         }
     }
 
-    public function addAllowanceCharge(AllowanceChargeType $allowanceCharge): void
+    public function addAllowanceCharge(?AllowanceChargeType $allowanceCharge = null): AllowanceChargeType
     {
-        $this->allowanceCharges []= $allowanceCharge;
+        return $this->allowanceCharges []= $allowanceCharge ?? new AllowanceChargeType;
     }
 }

@@ -67,9 +67,9 @@ class TransactionConditionsType
         }
     }
 
-    public function addDescription(TextType $description): void
+    public function addDescription(?TextType $description = null): TextType
     {
-        $this->descriptions []= $description;
+        return $this->descriptions []= $description ?? new TextType;
     }
 
     /**
@@ -92,8 +92,8 @@ class TransactionConditionsType
         }
     }
 
-    public function addDocumentReference(DocumentReferenceType $documentReference): void
+    public function addDocumentReference(?DocumentReferenceType $documentReference = null): DocumentReferenceType
     {
-        $this->documentReferences []= $documentReference;
+        return $this->documentReferences []= $documentReference ?? new DocumentReferenceType;
     }
 }

@@ -399,9 +399,9 @@ class Invoice
         }
     }
 
-    public function addInvoicePeriod(PeriodType $invoicePeriod): void
+    public function addInvoicePeriod(?PeriodType $invoicePeriod = null): PeriodType
     {
-        $this->invoicePeriods []= $invoicePeriod;
+        return $this->invoicePeriods []= $invoicePeriod ?? new PeriodType;
     }
 
     public function getOrderReference(): ?OrderReferenceType
@@ -643,7 +643,15 @@ class Invoice
      */
     public function setPaymentMeans(array $paymentMeans): void
     {
-        $this->paymentMeans = $paymentMeans;
+        $this->paymentMeans = [];
+        foreach ($paymentMeans as $paymentMean) {
+            $this->addPaymentMeans($paymentMean);
+        }
+    }
+
+    public function addPaymentMeans(?PaymentMeansType $paymentMeans = null): PaymentMeansType
+    {
+        return $this->paymentMeans []= $paymentMeans ?? new PaymentMeansType();
     }
 
     /**
@@ -697,6 +705,10 @@ class Invoice
         $this->allowanceCharges = $allowanceCharges;
     }
 
+    public function addAllowanceCharge(?AllowanceChargeType $allowanceCharge = null): AllowanceChargeType
+    {
+        return $this->allowanceCharges []= $allowanceCharge ?? new AllowanceChargeType;
+    }
 
 
     /**
@@ -720,9 +732,9 @@ class Invoice
         }
     }
 
-    public function addTaxTotal(TaxTotalType $taxTotal): void
+    public function addTaxTotal(?TaxTotalType $taxTotal = null): TaxTotalType
     {
-        $this->taxTotals []= $taxTotal;
+        return $this->taxTotals []= $taxTotal ?? new TaxTotalType;
     }
 
     public function getWithholdingTaxTotals(): array
@@ -746,7 +758,7 @@ class Invoice
     }
 
     /**
-     * @return array
+     * @return InvoiceLineType[]
      */
     public function getInvoiceLines(): array
     {
@@ -754,11 +766,19 @@ class Invoice
     }
 
     /**
-     * @param array $invoiceLines
+     * @param InvoiceLineType[] $invoiceLines
      * @return void
      */
     public function setInvoiceLines(array $invoiceLines): void
     {
-        $this->invoiceLines = $invoiceLines;
+        $this->invoiceLines = [];
+        foreach ($invoiceLines as $invoiceLine) {
+            $this->addInvoiceLine($invoiceLine);
+        }
+    }
+
+    public function addInvoiceLine(?InvoiceLineType $invoiceLine = null): InvoiceLineType
+    {
+        return $this->invoiceLines []= $invoiceLine ?? new InvoiceLineType;
     }
 }

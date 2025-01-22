@@ -68,9 +68,9 @@ class PriceListType
         }
     }
 
-    public function addValidityPeriod(PeriodType $validityPeriod): void
+    public function addValidityPeriod(?PeriodType $validityPeriod = null): PeriodType
     {
-        $this->validityPeriods []= $validityPeriod;
+        return $this->validityPeriods []= $validityPeriod ?? new PeriodType;
     }
 
     public function getPreviousPriceList(): ?PriceListType
