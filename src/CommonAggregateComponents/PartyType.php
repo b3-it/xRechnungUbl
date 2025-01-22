@@ -141,7 +141,15 @@ class PartyType
      */
     public function setPartyIdentifications(array $partyIdentifications): void
     {
-        $this->partyIdentifications = $partyIdentifications;
+        $this->partyIdentifications = [];
+        foreach ($partyIdentifications as $partyIdentification) {
+            $this->addPartyIdentification($partyIdentification);
+        }
+    }
+
+    public function addPartyIdentification(?PartyIdentificationType $partyIdentification = null): PartyIdentificationType
+    {
+        return $this->partyIdentifications []= $partyIdentification ?? new PartyIdentificationType();
     }
 
     public function getLanguage(): ?LanguageType

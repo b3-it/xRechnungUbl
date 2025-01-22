@@ -98,14 +98,28 @@ class ItemType
         #$this->setPrefix(CommonAggregateComponents::PREFIX);
     }
 
+    /**
+     * @return TextType[]
+     */
     public function getDescriptions(): array
     {
         return $this->descriptions;
     }
 
+    /**
+     * @param TextType[] $descriptions
+     * @return void
+     */
     public function setDescriptions(array $descriptions): void
     {
-        $this->descriptions = $descriptions;
+        $this->descriptions = [];
+        foreach ($descriptions as $description) {
+            $this->addDescription($description);
+        }
+    }
+    public function addDescription(?TextType $description): TextType
+    {
+        return $this->descriptions []= $description ?? new TextType();
     }
 
     public function getPackQuantity(): ?QuantityType
