@@ -3,11 +3,11 @@
 
 namespace UBL\CCTS;
 
-
-use JsonSerializable;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class AmountType implements JsonSerializable
+class AmountType implements NormalizableInterface
 {
 
     public function __construct(
@@ -20,7 +20,7 @@ class AmountType implements JsonSerializable
     )
     {}
 
-    public function jsonSerialize(): array
+    public function normalize(NormalizerInterface $normalizer, ?string $format = null, array $context = []): array
     {
         return array_filter([
             '#' => sprintf('%.2F', $this->value),

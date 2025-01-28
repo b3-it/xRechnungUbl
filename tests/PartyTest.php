@@ -2,10 +2,6 @@
 
 namespace UBL\Tests;
 
-use UBL\CommonAggregateComponents\PartyLegalEntityType;
-use UBL\CommonAggregateComponents\PartyNameType;
-use UBL\CommonAggregateComponents\PartyTaxSchemeType;
-use UBL\Serializer\EmptyArray;
 use UBL\CommonAggregateComponents\SupplierPartyType;
 
 class PartyTest extends AbstractTypeTest

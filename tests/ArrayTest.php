@@ -3,7 +3,6 @@
 namespace UBL\Tests;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
-use UBL\Tests\AbstractTypeTest;
 
 class TestData
 {
@@ -21,7 +20,7 @@ class ArrayTest extends AbstractTypeTest
     {
         $data = new TestData();
 
-        $str = $this->serialize($data, []);
+        $str = $this->serialize($data);
         var_dump($str);
     }
 }

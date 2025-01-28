@@ -4,7 +4,6 @@ namespace UBL\Tests;
 
 use DOMDocument;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Serializer\SerializerInterface;
 use UBL\Builder;
 use UBL\CommonAggregateComponents;
 use UBL\CommonBasicComponents;

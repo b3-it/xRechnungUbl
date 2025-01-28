@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 
 namespace UBL;
 
@@ -19,9 +19,7 @@ use Symfony\Component\Serializer\Normalizer\CustomNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateIntervalNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeZoneNormalizer;
-use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\UidNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use UBL\Serializer\EmptyArrayNormalizer;
@@ -103,11 +101,9 @@ class Builder
             new DateTimeNormalizer(),
             new DateTimeZoneNormalizer(),
             new DateIntervalNormalizer(),
-            new UidNormalizer(),
             new CustomNormalizer(),
             new BackedEnumNormalizer(),
             new ArrayDenormalizer(),
-            new JsonSerializableNormalizer(),
             $objectNormalizer,
         ];
         return new Serializer($normalizers, $encoders);

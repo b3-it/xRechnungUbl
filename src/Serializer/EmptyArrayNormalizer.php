@@ -10,7 +10,7 @@ class EmptyArrayNormalizer implements NormalizerInterface
     /**
      * @inheritDoc
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = []): float|int|bool|\ArrayObject|array|string|null
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array|null
     {
         return null;
     }
