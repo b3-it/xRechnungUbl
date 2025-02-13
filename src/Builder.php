@@ -53,7 +53,9 @@ class Builder
 
     public function deserialize(string $data, string $class, array $context = [])
     {
-        return $this->getSerializer()->deserialize($data, $class, 'xml', $context);
+        return $this->getSerializer()->deserialize($data, $class, 'xml', array_merge([
+            XmlEncoder::TYPE_CAST_ATTRIBUTES => false
+        ], $context));
     }
 
     public function serializeInvoice(Invoice $invoice, array $options = []): string

@@ -21,7 +21,6 @@ class CodeType
         #[SerializedName('@listName')]
         public ?string $listName = null,
         #[SerializedName('@listVersionID')]
-        #[Context([AbstractObjectNormalizer::DISABLE_TYPE_ENFORCEMENT => true])]
         public ?string $listVersionID = null,
         #[SerializedName('@name')]
         public ?string $name = null,
