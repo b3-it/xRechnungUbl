@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
-  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_1.2#conformant#urn:xoev-de:kosit:extension:xrechnung_1.2</cbc:CustomizationID>
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0#conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0</cbc:CustomizationID>
+  <cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>
   <cbc:ID>100000039</cbc:ID>
   <cbc:IssueDate>2020-11-23</cbc:IssueDate>
   <cbc:DueDate>2020-12-07</cbc:DueDate>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
-  <cbc:TaxCurrencyCode>EUR</cbc:TaxCurrencyCode>
   <cbc:BuyerReference>991-33333Test-33</cbc:BuyerReference>
   <cac:OrderReference>
     <cbc:ID>100000067</cbc:ID>
@@ -33,7 +33,6 @@
       </cac:PartyTaxScheme>
       <cac:PartyTaxScheme>
         <cbc:CompanyID>202/144/03367</cbc:CompanyID>
-        <cac:TaxScheme/>
       </cac:PartyTaxScheme>
       <cac:PartyLegalEntity>
         <cbc:RegistrationName>LfA Webshop</cbc:RegistrationName>
@@ -47,7 +46,7 @@
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
-      <cbc:EndpointID schemeID="9958">991-33333Test-33</cbc:EndpointID>
+      <cbc:EndpointID schemeID="0204">991-33333Test-33</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>Gotikstr.47</cbc:StreetName>
         <cbc:CityName>Breitenbach</cbc:CityName>
@@ -86,7 +85,6 @@
   </cac:Delivery>
   <cac:PaymentMeans>
     <cbc:PaymentMeansCode>49</cbc:PaymentMeansCode>
-    <cbc:InstructionNote>Vorkasse</cbc:InstructionNote>
     <cac:PayeeFinancialAccount>
       <cbc:ID>DE06860000000086001519</cbc:ID>
       <cbc:Name>Hauptkasse des Freistaates Sachsen</cbc:Name>
@@ -147,9 +145,9 @@
     <cac:Item>
       <cbc:Description><![CDATA[Pixel für Monitor]]></cbc:Description>
       <cbc:Name>Pixel für Monitor</cbc:Name>
-      <cac:StandardItemIdentification>
-        <cbc:ID schemeID="0001">p_0001_j-blau</cbc:ID>
-      </cac:StandardItemIdentification>
+      <cac:SellersItemIdentification>
+        <cbc:ID>p_0001_j-blau</cbc:ID>
+      </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>S</cbc:ID>
         <cbc:Percent>19.0000</cbc:Percent>
@@ -170,9 +168,9 @@
     <cac:Item>
       <cbc:Description><![CDATA[Pixel für Monitor]]></cbc:Description>
       <cbc:Name>Pixel für Monitor-blau</cbc:Name>
-      <cac:StandardItemIdentification>
-        <cbc:ID schemeID="0001">p_0001_j-blau</cbc:ID>
-      </cac:StandardItemIdentification>
+      <cac:SellersItemIdentification>
+        <cbc:ID>p_0001_j-blau</cbc:ID>
+      </cac:SellersItemIdentification>
       <cac:ClassifiedTaxCategory>
         <cbc:ID>Z</cbc:ID>
         <cbc:Percent>0.0000</cbc:Percent>
