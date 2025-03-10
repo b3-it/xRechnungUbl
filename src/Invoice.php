@@ -668,7 +668,15 @@ class Invoice
      */
     public function setPaymentTerms(array $paymentTerms): void
     {
-        $this->paymentTerms = $paymentTerms;
+        $this->paymentTerms = [];
+        foreach ($paymentTerms as $term) {
+            $this->addPaymentTerms($term);
+        }
+    }
+
+    public function addPaymentTerms(?PaymentTermsType $paymentTerms = null): PaymentTermsType
+    {
+        return $this->paymentTerms []= $paymentTerms ?? new PaymentTermsType();
     }
 
     /**
