@@ -418,6 +418,11 @@ enum PaymentMeansCode: string
     case UNCL4461_97 = '97';
 
     /**
+     * JP, Electronically Recorded Monetary Claims
+     */
+    case UNCL4461_98 = '98';
+
+    /**
      * Mutually defined
      */
     case UNCL4461_ZZZ = 'ZZZ';
