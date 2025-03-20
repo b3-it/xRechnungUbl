@@ -348,11 +348,6 @@ enum PaymentMeansCode: string
     case UNCL4461_68 = '68';
 
     /**
-     * Transfer Advice
-     */
-    case UNCL4461_69 = '69';
-
-    /**
      * Bill drawn by the creditor on the debtor
      */
     case UNCL4461_70 = '70';
