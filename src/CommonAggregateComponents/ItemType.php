@@ -346,7 +346,10 @@ class ItemType
      */
     public function setClassifiedTaxCategories(array $classifiedTaxCategories): void
     {
-        $this->classifiedTaxCategories = $classifiedTaxCategories;
+        $this->classifiedTaxCategories = [];
+        foreach ($classifiedTaxCategories as $taxCategory) {
+            $this->addClassifiedTaxCategory($taxCategory);
+        }
     }
 
     public function addClassifiedTaxCategory(?TaxCategoryType $taxCategory): TaxCategoryType
@@ -354,14 +357,29 @@ class ItemType
         return $this->classifiedTaxCategories []= $taxCategory ?? new TaxCategoryType();
     }
 
+    /**
+     * @return ItemPropertyType[]
+     */
     public function getAdditionalItemProperties(): array
     {
         return $this->additionalItemProperties;
     }
 
+    /**
+     * @param ItemPropertyType[] $additionalItemProperties
+     * @return void
+     */
     public function setAdditionalItemProperties(array $additionalItemProperties): void
     {
-        $this->additionalItemProperties = $additionalItemProperties;
+        $this->additionalItemProperties = [];
+        foreach ($additionalItemProperties as $itemProperty) {
+            $this->addAdditionalItemProperty($itemProperty);
+        }
+    }
+
+    public function addAdditionalItemProperty(?ItemPropertyType $property): ItemPropertyType
+    {
+        return $this->additionalItemProperties []= $property ?? new ItemPropertyType();
     }
 
     public function getManufacturerParties(): array
