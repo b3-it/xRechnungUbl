@@ -2,6 +2,9 @@
 
 namespace UBL\Peppol;
 
+/**
+ * @source https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL5189/
+ */
 enum AllowanceReasonCode: string
 {
     /**
