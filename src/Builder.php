@@ -44,11 +44,12 @@ class Builder
 
     public function serialize($data, array $context = []): string
     {
-        return $this->getSerializer()->serialize($data, 'xml', array_merge($context, [
+        return $this->getSerializer()->serialize($data, 'xml', array_merge([
             AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
             XmlEncoder::FORMAT_OUTPUT => true,
+            XmlEncoder::ENCODING => 'UTF-8'
             #XmlEncoder::REMOVE_EMPTY_TAGS => true
-        ]));
+        ], $context));
     }
 
     public function deserialize(string $data, string $class, array $context = [])
@@ -60,9 +61,9 @@ class Builder
 
     public function serializeInvoice(Invoice $invoice, array $options = []): string
     {
-        return $this->serialize($invoice, array_merge($options, [
+        return $this->serialize($invoice, array_merge([
             XmlEncoder::ROOT_NODE_NAME => Invoice::ROOT_NAME
-        ]));
+        ], $options));
     }
 
     protected function __createSerializer(): SerializerInterface
