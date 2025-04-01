@@ -39,6 +39,10 @@ class Invoice
 
     const ROOT_NAME = self::PREFIX . ":Invoice";
 
+    const XR_MAJOR_MINOR_VERSION = "3.0";
+    const XR_CIUS_ID = 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_' . self::XR_MAJOR_MINOR_VERSION;
+    const XR_EXTENSION_ID = self::XR_CIUS_ID . '#conformant#urn:xeinkauf.de:kosit:extension:xrechnung_' . self::XR_MAJOR_MINOR_VERSION;
+
     /**
      * @param TextType[] $notes
      * @param PeriodType[] $invoicePeriods
