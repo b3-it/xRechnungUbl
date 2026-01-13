@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\Indicator;
@@ -40,6 +41,7 @@ class PartyType
         protected array $partyNames = [],
         #[SerializedName('Language')]
         protected ?LanguageType $language = null,
+        #[Assert\Valid]
         #[SerializedName('PostalAddress')]
         protected ?AddressType $postalAddress = null,
         #[SerializedName('PhysicalLocation')]

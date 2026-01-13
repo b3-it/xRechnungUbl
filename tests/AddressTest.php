@@ -42,6 +42,6 @@ class AddressTest extends AbstractTypeTest
         $val = $this->deserialize($str, AddressType::class);
 
         self::assertSame('12345', $val->getPostalZone()->value);
-        self::assertSame('DE', $val->getCountry()->getIdentificationCode()->value);
+        self::assertSame('DE', $val->getCountry()->identificationCode->value);
     }
 }

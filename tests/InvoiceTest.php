@@ -3,6 +3,8 @@
 namespace UBL\Tests;
 
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use UBL\CommonAggregateComponents\MonetaryTotalType;
 use UBL\UnqualifiedDataTypes\AmountType;
 
@@ -10,6 +12,13 @@ use UBL\Invoice;
 
 class InvoiceTest extends AbstractTypeTest
 {
+    protected ?ValidatorInterface $validator = null;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+    }
+
 
     public function testInvoice()
     {
@@ -37,12 +46,13 @@ class InvoiceTest extends AbstractTypeTest
          */
         $val = $this->deserialize($str, Invoice::class);
 
+        self::assertEmpty($this->validator->validate($val));
+
         $str2 = $this->serialize($val, [
             XmlEncoder::ROOT_NODE_NAME => Invoice::ROOT_NAME,
         ]);
 
         $this->assertXmlStringEqualsXmlString($str, $str2);
-
     }
 
     public function testImportUblInvoice()

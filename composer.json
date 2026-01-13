@@ -10,6 +10,9 @@
         "symfony/property-access": "^6.4 || ^7.1 || ^8.0",
         "symfony/property-info": "^6.4 || ^7.1 || ^8.0",
         "symfony/serializer": "^6.4 || ^7.1 || ^8.0",
+        "symfony/validator": "^6.4 || ^7.1 || ^8.0",
+        "symfony/expression-language": "^6.4 || ^7.1 || ^8.0",
+        "symfony/polyfill-php84": "v1.33.0",
         "phpdocumentor/reflection-docblock": "^5.3"
     },
     "require-dev": {

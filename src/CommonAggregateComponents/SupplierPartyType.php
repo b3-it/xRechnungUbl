@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\TextType;
 
@@ -20,6 +21,7 @@ class SupplierPartyType
         protected array $additionalAccountIDs = [],
         #[SerializedName('DataSendingCapability')]
         protected ?TextType $dataSendingCapability = null,
+        #[Assert\Valid]
         #[SerializedName('Party')]
         protected ?PartyType $party = null,
         #[SerializedName('DespatchContact')]

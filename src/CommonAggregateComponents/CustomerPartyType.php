@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 
 class CustomerPartyType
@@ -21,6 +22,7 @@ class CustomerPartyType
         protected ?IdentifierType $supplierAssignedAccountID = null,
         #[SerializedName('AdditionalAccountID')]
         protected array $additionalAccountIDs = [],
+        #[Assert\Valid]
         #[SerializedName('Party')]
         protected ?PartyType $party = null,
         #[SerializedName('DeliveryContact')]

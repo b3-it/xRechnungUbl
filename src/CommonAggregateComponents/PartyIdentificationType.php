@@ -16,14 +16,4 @@ class PartyIdentificationType
         #$this->setPrefix(CommonAggregateComponents::PREFIX);
 
     }
-
-    public function getId(): IdentifierType
-    {
-        return $this->id;
-    }
-
-    public function setId(IdentifierType $id): void
-    {
-        $this->id = $id;
-    }
 }

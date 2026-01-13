@@ -5,6 +5,8 @@ namespace UBL;
 use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use UBL\CommonAggregateComponents\AllowanceChargeType;
 use UBL\CommonAggregateComponents\BillingReferenceType;
 use UBL\CommonAggregateComponents\CustomerPartyType;
@@ -15,6 +17,9 @@ use UBL\CommonAggregateComponents\ExchangeRateType;
 use UBL\CommonAggregateComponents\InvoiceLineType;
 use UBL\CommonAggregateComponents\MonetaryTotalType;
 use UBL\CommonAggregateComponents\OrderReferenceType;
+use UBL\CommonAggregateComponents\PartyIdentificationType;
+use UBL\CommonAggregateComponents\PartyLegalEntityType;
+use UBL\CommonAggregateComponents\PartyTaxSchemeType;
 use UBL\CommonAggregateComponents\PartyType;
 use UBL\CommonAggregateComponents\PaymentMeansType;
 use UBL\CommonAggregateComponents\PaymentTermsType;
@@ -73,18 +78,21 @@ class Invoice
 
         #[SerializedName("UBLVersionID")]
         protected ?IdentifierType $uBLVersionID = null,
+        #[Assert\NotNull(message: '[BR-01]-An Invoice shall have a Specification identifier (BT-24).')]
         #[SerializedName("CustomizationID")]
         protected ?IdentifierType $customizationID = null,
         #[SerializedName("ProfileID")]
         protected ?IdentifierType $profileID = null,
         #[SerializedName("ProfileExecutionID")]
         protected ?IdentifierType $profileExecutionID = null,
+        #[Assert\NotNull(message: '[BR-02]-An Invoice shall have an Invoice number (BT-1).')]
         #[SerializedName("ID")]
         protected ?IdentifierType $id = null,
         #[SerializedName("CopyIndicator")]
         protected ?Indicator $copyIndicator = null,
         #[SerializedName("UUID")]
         protected ?IdentifierType $uUID = null,
+        #[Assert\NotNull(message: '[BR-03]-An Invoice shall have an Invoice issue date (BT-2).')]
         #[SerializedName("IssueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface $issueDate = null,
@@ -94,6 +102,7 @@ class Invoice
         #[SerializedName("DueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface $dueDate = null,
+        #[Assert\NotNull(message: '[BR-04]-An Invoice shall have an Invoice type code (BT-3).')]
         #[SerializedName("InvoiceTypeCode")]
         protected ?CodeType $invoiceTypeCode = null,
         #[SerializedName("Note")]
@@ -101,6 +110,7 @@ class Invoice
         #[SerializedName("TaxPointDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface $taxPointDate = null,
+        #[Assert\NotNull(message: '[BR-05]-An Invoice shall have an Invoice currency code (BT-5).')]
         #[SerializedName("DocumentCurrencyCode")]
         protected ?CodeType $documentCurrencyCode = null,
         #[SerializedName("TaxCurrencyCode")]
@@ -141,22 +151,40 @@ class Invoice
         protected array $projectReferences = [],
         #[SerializedName("Signature")]
         protected array $signatures = [],
+        #[Assert\Valid]
+        #[Assert\Sequentially([
+            new Assert\Expression('value?.getParty()?.getPostalAddress()', message: '[BR-08]-An Invoice shall contain the Seller postal address.'),
+            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-09]-The Seller postal address (BG-5) shall contain a Seller country code (BT-40).')
+        ])]
         #[SerializedName("AccountingSupplierParty")]
         protected ?SupplierPartyType $accountingSupplierParty = null,
+        #[Assert\Valid]
+        #[Assert\Sequentially([
+            new Assert\Expression('value?.getParty()?.getPostalAddress()', '[BR-10]-An Invoice shall contain the Buyer postal address (BG-8).'),
+            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', '[BR-11]-The Buyer postal address shall contain a Buyer country code (BT-55).'),
+            new Assert\Expression('value.getParty().getEndpointID()', 'Buyer electronic address MUST be provided'),
+            new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-63]-The Buyer electronic address (BT-49) shall have a Scheme identifier.'),
+        ])]
         #[SerializedName("AccountingCustomerParty")]
         protected ?CustomerPartyType $accountingCustomerParty = null,
+        #[Assert\Valid]
         #[SerializedName("PayeeParty")]
         protected ?PartyType $payeeParty = null,
         #[SerializedName("BuyerCustomerParty")]
         protected ?CustomerPartyType $buyerCustomerParty = null,
         #[SerializedName("SellerSupplierParty")]
         protected ?SupplierPartyType $sellerSupplierParty = null,
+        #[Assert\Valid]
+        #[Assert\When('value', [
+            new Assert\Expression('value.getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-20]-The Seller tax representative postal address (BG-12) shall contain a Tax representative country code (BT-69), if the Seller (BG-4) has a Seller tax representative party (BG-11).')
+        ])]
         #[SerializedName("TaxRepresentativeParty")]
         protected ?PartyType $taxRepresentativeParty = null,
         #[SerializedName("Delivery")]
         protected array $deliveries = [],
         #[SerializedName("DeliveryTerms")]
         protected ?DeliveryTermsType $deliveryTerms = null,
+        #[Assert\Valid]
         #[SerializedName("PaymentMeans")]
         protected array $paymentMeans = [],
         #[SerializedName("PaymentTerms")]
@@ -179,6 +207,11 @@ class Invoice
         protected array $withholdingTaxTotals = [],
         #[SerializedName("LegalMonetaryTotal")]
         protected ?MonetaryTotalType $legalMonetaryTotal = null,
+        #[Assert\Count(
+            min: 1,
+            minMessage: "[BR-16]-An Invoice shall have at least one Invoice line (BG-25)"
+        )]
+        #[Assert\Valid]
         #[SerializedName("InvoiceLine")]
         protected array $invoiceLines = [],
     )
@@ -794,5 +827,50 @@ class Invoice
     public function addInvoiceLine(?InvoiceLineType $invoiceLine = null): InvoiceLineType
     {
         return $this->invoiceLines []= $invoiceLine ?? new InvoiceLineType;
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($this->getLegalMonetaryTotal()?->getLineExtensionAmount() === null) {
+            $context->buildViolation(
+                '[BR-12]-An Invoice shall have the Sum of Invoice line net amount (BT-106).'
+            )
+                ->setCode('BR-12')
+                ->atPath('legal_monetary_total.line_extension_amount')
+                ->addViolation();
+        }
+
+        if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
+            if (!(array_any(
+                $supplierPartyParty->getPartyTaxSchemes(),
+                fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId() === 'VAT' && !is_null($partyTaxScheme->getCompanyID())
+                ) || array_any(
+                    $supplierPartyParty->getPartyIdentifications(),
+                    fn(PartyIdentificationType $partyIdentification) => !is_null($partyIdentification->id)
+                ) || array_any(
+                    $supplierPartyParty->getPartyLegalEntities(),
+                    fn(PartyLegalEntityType $partyLegalEntity) => !is_null($partyLegalEntity->getCompanyID())
+                )))
+            {
+                $context->buildViolation(
+                    '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.'
+                )
+                    ->setCode('BR-CO-26')
+                    ->atPath('accounting_supplier_party.party')
+                    ->addViolation();
+            }
+
+            if ($endPointID = $supplierPartyParty->getEndpointID()) {
+                if ($endPointID->schemeID === null) {
+                    $context->buildViolation(
+                        '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'
+                    )
+                        ->setCode('BR-62')
+                        ->atPath('accounting_supplier_party.party.endpoint_id.scheme_id')
+                        ->addViolation();
+                }
+            }
+        }
     }
 }

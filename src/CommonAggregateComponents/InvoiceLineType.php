@@ -5,6 +5,8 @@ namespace UBL\CommonAggregateComponents;
 
 use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use UBL\UnqualifiedDataTypes\AmountType;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
@@ -36,8 +38,13 @@ class InvoiceLineType
         protected ?IdentifierType $uuid = null,
         #[SerializedName('Note')]
         protected array $notes = [],
+        #[Assert\Sequentially(constraints: [
+            new Assert\NotNull(message: "[BR-23]-An Invoice line (BG-25) shall have an Invoiced quantity unit of measure code (BT-130)."),
+            new Assert\Expression(expression: 'value.unitCode !== null', message: "[BR-23]-An Invoice line (BG-25) shall have an Invoiced quantity unit of measure code (BT-130).")
+        ])]
         #[SerializedName('InvoicedQuantity')]
         protected ?QuantityType $invoicedQuantity = null,
+        #[Assert\NotNull(message: '[BR-24]-Each Invoice line (BG-25) shall have an Invoice line net amount (BT-131).')]
         #[SerializedName('LineExtensionAmount')]
         protected ?AmountType $lineExtensionAmount = null,
         #[SerializedName('TaxPointDate')]
@@ -50,6 +57,12 @@ class InvoiceLineType
         protected ?CodeType $paymentPurposeCode = null,
         #[SerializedName('FreeOfChargeIndicator')]
         protected ?Indicator $freeOfChargeIndicator = null,
+        #[Assert\All([
+            new Assert\Expression('value.getStartDate() or value.getEndDate()', message: '[BR-CO-20]-If Invoice line period (BG-26) is used, the Invoice line period start date (BT-134) or the Invoice line period end date (BT-135) shall be filled, or both.'),
+            new Assert\When('value.getStartDate() and value.getEndDate()', [
+                new Assert\Expression('value.getEndDate() >= value.getStartDate()', message: '[BR-30]-If both Invoice line period start date (BT-134) and Invoice line period end date (BT-135) are given then the Invoice line period end date (BT-135) shall be later or equal to the Invoice line period start date (BT-134).')
+            ]),
+        ])]
         #[SerializedName('InvoicePeriod')]
         protected array $invoicePeriods = [],
         #[SerializedName('OrderLineReference')]
@@ -76,8 +89,13 @@ class InvoiceLineType
         protected array $taxTotals = [],
         #[SerializedName('WithholdingTaxTotal')]
         protected array $withholdingTaxTotals = [],
+        #[Assert\Expression('value?.getName()?.value', message: '[BR-25]-Each Invoice line (BG-25) shall contain the Item name (BT-153).')]
         #[SerializedName('Item')]
         protected ?ItemType $item = null,
+        #[Assert\Sequentially([
+            new Assert\Expression('value?.getPriceAmount()', message: '[BR-26]-Each Invoice line (BG-25) shall contain the Item net price (BT-146).'),
+            new Assert\Expression('value?.getPriceAmount() >= 0', message: '[BR-27]-The Item net price (BT-146) shall NOT be negative.')
+        ])]
         #[SerializedName('Price')]
         protected ?PriceType $price = null,
         #[SerializedName('DeliveryTerms')]
@@ -563,5 +581,10 @@ class InvoiceLineType
     public function setItemPriceExtension(?PriceExtensionType $itemPriceExtension): void
     {
         $this->itemPriceExtension = $itemPriceExtension;
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
     }
 }

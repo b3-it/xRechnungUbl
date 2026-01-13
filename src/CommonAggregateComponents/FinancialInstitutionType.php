@@ -4,6 +4,7 @@
 namespace UBL\CommonAggregateComponents;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\NameType;
 
@@ -15,6 +16,7 @@ class FinancialInstitutionType
         protected ?IdentifierType $id = null,
         #[SerializedName('Name')]
         protected ?NameType $name = null,
+        #[Assert\Valid]
         #[SerializedName('Address')]
         protected ?AddressType $address = null
     )

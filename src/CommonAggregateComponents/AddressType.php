@@ -4,6 +4,7 @@
 namespace UBL\CommonAggregateComponents;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\NameType;
@@ -66,6 +67,7 @@ class AddressType
         protected ?TextType $district = null,
         #[SerializedName("TimezoneOffset")]
         protected ?TextType $timezoneOffset = null,
+        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-51]-An address can only have one third line.')]
         #[SerializedName('AddressLine')]
         protected array $addressLines = [],
         #[SerializedName('Country')]

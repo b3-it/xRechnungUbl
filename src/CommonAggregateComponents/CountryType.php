@@ -11,30 +11,10 @@ class CountryType
 {
     public function __construct(
         #[SerializedName('IdentificationCode')]
-        protected ?CodeType $identificationCode = null,
+        public ?CodeType $identificationCode = null,
         #[SerializedName('Name')]
-        protected ?NameType $name = null
+        public ?NameType $name = null
     )
     {
-    }
-
-    public function getIdentificationCode(): ?CodeType
-    {
-        return $this->identificationCode;
-    }
-
-    public function setIdentificationCode(?CodeType $identificationCode): void
-    {
-        $this->identificationCode = $identificationCode;
-    }
-
-    public function getName(): ?NameType
-    {
-        return $this->name;
-    }
-
-    public function setName(?NameType $name): void
-    {
-        $this->name = $name;
     }
 }

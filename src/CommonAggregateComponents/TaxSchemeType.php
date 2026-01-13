@@ -4,6 +4,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\NameType;
@@ -24,6 +25,7 @@ class TaxSchemeType
         protected ?CodeType $taxTypeCode = null,
         #[SerializedName('CurrencyCode')]
         protected ?CodeType $currencyCode = null,
+        #[Assert\Valid]
         #[SerializedName('JurisdictionRegionAddress')]
         protected array $jurisdictionRegionAddresses = []
     )

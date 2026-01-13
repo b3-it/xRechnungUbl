@@ -6,6 +6,9 @@ namespace UBL\CommonAggregateComponents;
 
 use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use UBL\Peppol\PaymentMeansCode;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\TextType;
@@ -20,6 +23,7 @@ class PaymentMeansType
 
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
+        #[Assert\NotNull(message: '[BR-49]-A Payment instruction (BG-16) shall specify the Payment means type code (BT-81).')]
         #[SerializedName('PaymentMeansCode')]
         protected ?CodeType $paymentMeansCode = null,
         #[SerializedName('PaymentDueDate')]
@@ -38,6 +42,7 @@ class PaymentMeansType
         /**
          * @var IdentifierType[]
          */
+        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-26]-Payment reference shall occur maximum once')]
         #[SerializedName('PaymentID')]
         protected array $paymentIDs = [],
 
@@ -45,6 +50,11 @@ class PaymentMeansType
         protected ?CardAccountType $cardAccount = null,
         #[SerializedName('PayerFinancialAccount')]
         protected ?FinancialAccountType $payerFinancialAccount = null,
+        #[Assert\When(
+            'this.getPaymentMeansCode().value == 30 or this.getPaymentMeansCode().value == 36', [
+                new Assert\NotNull( message: '[BR-61]-If the Payment means type code (BT-81) means SEPA credit transfer, Local credit transfer or Non-SEPA international credit transfer, the Payment account identifier (BT-84) shall be present.')
+            ]
+        )]
         #[SerializedName('PayeeFinancialAccount')]
         protected ?FinancialAccountType $payeeFinancialAccount = null,
         #[SerializedName('CreditAccount')]
@@ -216,5 +226,10 @@ class PaymentMeansType
     public function setTradeFinancing(?TradeFinancingType $tradeFinancing): void
     {
         $this->tradeFinancing = $tradeFinancing;
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
     }
 }
