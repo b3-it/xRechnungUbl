@@ -7,6 +7,7 @@
         "ext-dom": "*",
         "ext-xml": "*",
         "ext-xsl": "*",
+        "symfony/intl": "^7.4 || ^8.0",
         "symfony/property-access": "^7.4 || ^8.0",
         "symfony/property-info": "^7.4 || ^8.0",
         "symfony/serializer": "^7.4 || ^8.0",

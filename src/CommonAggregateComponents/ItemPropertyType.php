@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\NameType;
@@ -22,12 +23,14 @@ class ItemPropertyType
     public function __construct(
         #[SerializedName("ID")]
         protected ?IdentifierType $id = null,
+        #[Assert\NotNull(message: '[BR-54]-Each Item attribute (BG-32) shall contain an Item attribute name (BT-160) and an Item attribute value (BT-161).')]
         #[SerializedName("Name")]
         protected ?NameType $name = null,
         #[SerializedName("NameCode")]
         protected ?CodeType $nameCode = null,
         #[SerializedName("TestMethod")]
         protected ?TextType $testMethod = null,
+        #[Assert\NotNull(message: '[BR-54]-Each Item attribute (BG-32) shall contain an Item attribute name (BT-160) and an Item attribute value (BT-161).')]
         #[SerializedName("Value")]
         protected ?ValueType $value = null,
         #[SerializedName("ValueQuantity")]

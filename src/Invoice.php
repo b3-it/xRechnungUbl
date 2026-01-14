@@ -837,6 +837,13 @@ class Invoice
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
+        $context->getValidator()->inContext($context)->validate($this->getDocumentCurrencyCode()?->value, [
+            new Assert\Currency(message: '[BR-CL-04]-Invoice currency code MUST be coded using ISO code list 4217 alpha-3')
+        ]);
+        $context->getValidator()->inContext($context)->validate($this->getTaxCurrencyCode()?->value, [
+            new Assert\Currency(message: '[BR-CL-05]-Tax currency code MUST be coded using ISO code list 4217 alpha-3')
+        ]);
+
         if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
             if (!(array_any(
                 $supplierPartyParty->getPartyTaxSchemes(),

@@ -4,6 +4,8 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use UBL\UnqualifiedDataTypes\AmountType;
 use UBL\UnqualifiedDataTypes\MeasureType;
 use UBL\UnqualifiedDataTypes\NumericType;
@@ -13,8 +15,10 @@ use UBL\UnqualifiedDataTypes\TextType;
 class TaxSubtotalType
 {
     public function __construct(
+        #[Assert\NotNull(message: '[BR-45]-Each VAT breakdown (BG-23) shall have a VAT category taxable amount (BT-116).')]
         #[SerializedName('TaxableAmount')]
         protected ?AmountType $taxableAmount = null,
+        #[Assert\NotNull(message: '[BR-46]-Each VAT breakdown (BG-23) shall have a VAT category tax amount (BT-117).')]
         #[SerializedName('TaxAmount')]
         protected ?AmountType $taxAmount = null,
         #[SerializedName('CalculationSequenceNumeric')]
@@ -31,10 +35,14 @@ class TaxSubtotalType
         protected ?TextType $tierRange = null,
         #[SerializedName('TierRatePercent')]
         protected ?PercentType $tierRatePercent = null,
+        #[Assert\When("value?.getTaxScheme()?.getId()?.value == 'VAT'", [
+            new Assert\Expression('value.getId()', '[BR-47]-Each VAT breakdown (BG-23) shall be defined through a VAT category code (BT-118).')
+        ])]
         #[SerializedName('TaxCategory')]
         protected ?TaxCategoryType $taxCategory = null
     )
     {
+        $this->taxCategory ??= new TaxCategoryType();
 #        $this->setPrefix(CommonAggregateComponents::PREFIX);
     }
 
@@ -132,14 +140,21 @@ class TaxSubtotalType
 
     public function getTaxCategory(): ?TaxCategoryType
     {
-        if ($this->taxCategory == null) {
-            $this->taxCategory = new TaxCategoryType();
-        }
         return $this->taxCategory;
     }
 
     public function setTaxCategory(?TaxCategoryType $taxCategory): void
     {
         $this->taxCategory = $taxCategory;
+    }
+
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if ($taxCat = $this->getTaxCategory()) {
+            $context->getValidator()->inContext($context)->validate($taxCat->getTaxExemptionReasons(), [
+                new Assert\Count(max: 1, maxMessage: '[UBL-SR-32]-VAT exemption reason text shall occur maximum once')
+            ]);
+        }
     }
 }

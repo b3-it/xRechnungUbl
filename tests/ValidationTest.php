@@ -3,8 +3,6 @@
 namespace UBL\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use UBL\CommonAggregateComponents;

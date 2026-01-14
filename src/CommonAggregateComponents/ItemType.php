@@ -79,6 +79,7 @@ class ItemType
         protected array $hazardousItems = [],
         #[SerializedName('ClassifiedTaxCategory')]
         protected array $classifiedTaxCategories = [],
+        #[Assert\Valid]
         #[SerializedName('AdditionalItemProperty')]
         protected array $additionalItemProperties = [],
         #[SerializedName('ManufacturerParty')]

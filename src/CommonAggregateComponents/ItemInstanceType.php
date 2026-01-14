@@ -6,6 +6,7 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\CommonAggregateComponents;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 
@@ -30,6 +31,7 @@ class ItemInstanceType
         protected ?IdentifierType $registrationID = null,
         #[SerializedName('SerialID')]
         protected ?IdentifierType $serialID = null,
+        #[Assert\Valid]
         #[SerializedName('AdditionalItemProperty')]
         protected array $additionalItemProperties = [],
         #[SerializedName('LotIdentification')]

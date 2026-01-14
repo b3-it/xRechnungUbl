@@ -36,6 +36,7 @@ class InvoiceLineType
         protected ?IdentifierType $id = null,
         #[SerializedName('UUID')]
         protected ?IdentifierType $uuid = null,
+        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-34]-Invoice line note shall occur maximum once')]
         #[SerializedName('Note')]
         protected array $notes = [],
         #[Assert\Sequentially(constraints: [
@@ -57,6 +58,7 @@ class InvoiceLineType
         protected ?CodeType $paymentPurposeCode = null,
         #[SerializedName('FreeOfChargeIndicator')]
         protected ?Indicator $freeOfChargeIndicator = null,
+        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-36]-Invoice line period shall occur maximum once')]
         #[Assert\All([
             new Assert\Expression('value.getStartDate() or value.getEndDate()', message: '[BR-CO-20]-If Invoice line period (BG-26) is used, the Invoice line period start date (BT-134) or the Invoice line period end date (BT-135) shall be filled, or both.'),
             new Assert\When('value.getStartDate() and value.getEndDate()', [
@@ -73,6 +75,7 @@ class InvoiceLineType
         protected array $receiptLineReferences = [],
         #[SerializedName('BillingReference')]
         protected array $billingReferences = [],
+        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-52]-Document reference shall occur maximum once')]
         #[SerializedName('DocumentReference')]
         protected array $documentReferences = [],
         #[SerializedName('PricingReference')]

@@ -41,6 +41,7 @@ class TaxCategoryType
         #[SerializedName('TaxScheme')]
         protected ?TaxSchemeType $taxScheme = null)
     {
+        $this->taxScheme ??= new TaxSchemeType();
         #$this->setPrefix(CommonAggregateComponents::PREFIX);
     }
 
@@ -151,9 +152,6 @@ class TaxCategoryType
 
     public function getTaxScheme(): ?TaxSchemeType
     {
-        if ($this->taxScheme == null) {
-            $this->taxScheme = new TaxSchemeType();
-        }
         return $this->taxScheme;
     }
 

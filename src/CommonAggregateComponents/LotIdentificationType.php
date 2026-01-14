@@ -3,6 +3,8 @@
 namespace UBL\CommonAggregateComponents;
 
 use DateTimeInterface;
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 
 class LotIdentificationType
@@ -12,8 +14,12 @@ class LotIdentificationType
      * @param ItemPropertyType[] $additionalItemProperties
      */
     public function __construct(
+        #[SerializedName('LotNumberID')]
         protected ?IdentifierType $lotNumberID = null,
+        #[SerializedName('ExpiryDate')]
         protected ?DateTimeInterface $expiryDate = null,
+        #[Assert\Valid]
+        #[SerializedName('AdditionalItemProperty')]
         protected array $additionalItemProperties = []
     )
     {

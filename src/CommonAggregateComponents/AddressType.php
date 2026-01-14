@@ -70,6 +70,7 @@ class AddressType
         #[Assert\Count(max: 1, maxMessage: '[UBL-SR-51]-An address can only have one third line.')]
         #[SerializedName('AddressLine')]
         protected array $addressLines = [],
+        #[Assert\Valid]
         #[SerializedName('Country')]
         protected ?CountryType $country = null,
         #[SerializedName('LocationCoordinate')]

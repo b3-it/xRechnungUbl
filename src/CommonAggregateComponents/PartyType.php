@@ -150,9 +150,9 @@ class PartyType
         }
     }
 
-    public function addPartyIdentification(?PartyIdentificationType $partyIdentification = null): PartyIdentificationType
+    public function addPartyIdentification(PartyIdentificationType $partyIdentification): PartyIdentificationType
     {
-        return $this->partyIdentifications []= $partyIdentification ?? new PartyIdentificationType();
+        return $this->partyIdentifications []= $partyIdentification;
     }
 
     public function getLanguage(): ?LanguageType
