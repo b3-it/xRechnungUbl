@@ -4,15 +4,19 @@
 namespace UBL\CommonAggregateComponents;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\AmountType;
 
 class MonetaryTotalType
 {
     public function __construct(
+        #[Assert\NotNull(message: '[BR-12]-An Invoice shall have the Sum of Invoice line net amount (BT-106).')]
         #[SerializedName('LineExtensionAmount')]
         protected ?AmountType $lineExtensionAmount = null,
+        #[Assert\NotNull(message: '[BR-13]-An Invoice shall have the Invoice total amount without VAT (BT-109).')]
         #[SerializedName('TaxExclusiveAmount')]
         protected ?AmountType $taxExclusiveAmount = null,
+        #[Assert\NotNull(message: '[BR-14]-An Invoice shall have the Invoice total amount with VAT (BT-112).')]
         #[SerializedName('TaxInclusiveAmount')]
         protected ?AmountType $taxInclusiveAmount = null,
         #[SerializedName('AllowanceTotalAmount')]
@@ -23,6 +27,7 @@ class MonetaryTotalType
         protected ?AmountType $prepaidAmount = null,
         #[SerializedName('PayableRoundingAmount')]
         protected ?AmountType $payableRoundingAmount = null,
+        #[Assert\NotNull(message: '[BR-15]-An Invoice shall have the Amount due for payment (BT-115).')]
         #[SerializedName('PayableAmount')]
         protected ?AmountType $payableAmount = null,
         #[SerializedName('PayableAlternativeAmount')]

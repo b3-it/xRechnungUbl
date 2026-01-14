@@ -154,7 +154,9 @@ class Invoice
         #[Assert\Valid]
         #[Assert\Sequentially([
             new Assert\Expression('value?.getParty()?.getPostalAddress()', message: '[BR-08]-An Invoice shall contain the Seller postal address.'),
-            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-09]-The Seller postal address (BG-5) shall contain a Seller country code (BT-40).')
+            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-09]-The Seller postal address (BG-5) shall contain a Seller country code (BT-40).'),
+            new Assert\Expression('value.getParty().getEndpointID()', 'Seller electronic address MUST be provided'),
+            new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'),
         ])]
         #[SerializedName("AccountingSupplierParty")]
         protected ?SupplierPartyType $accountingSupplierParty = null,
@@ -205,6 +207,8 @@ class Invoice
         protected array $taxTotals = [],
         #[SerializedName("WithholdingTaxTotal")]
         protected array $withholdingTaxTotals = [],
+        #[Assert\NotNull]
+        #[Assert\Valid]
         #[SerializedName("LegalMonetaryTotal")]
         protected ?MonetaryTotalType $legalMonetaryTotal = null,
         #[Assert\Count(
@@ -832,15 +836,6 @@ class Invoice
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
-        if ($this->getLegalMonetaryTotal()?->getLineExtensionAmount() === null) {
-            $context->buildViolation(
-                '[BR-12]-An Invoice shall have the Sum of Invoice line net amount (BT-106).'
-            )
-                ->setCode('BR-12')
-                ->atPath('legal_monetary_total.line_extension_amount')
-                ->addViolation();
-        }
-
         if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
             if (!(array_any(
                 $supplierPartyParty->getPartyTaxSchemes(),
@@ -859,17 +854,6 @@ class Invoice
                     ->setCode('BR-CO-26')
                     ->atPath('accounting_supplier_party.party')
                     ->addViolation();
-            }
-
-            if ($endPointID = $supplierPartyParty->getEndpointID()) {
-                if ($endPointID->schemeID === null) {
-                    $context->buildViolation(
-                        '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'
-                    )
-                        ->setCode('BR-62')
-                        ->atPath('accounting_supplier_party.party.endpoint_id.scheme_id')
-                        ->addViolation();
-                }
             }
         }
     }
