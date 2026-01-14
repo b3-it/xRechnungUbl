@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\NameType;
@@ -19,6 +20,7 @@ class PartyTaxSchemeType
     public function __construct(
         #[SerializedName('RegistrationName')]
         protected ?NameType $registrationName = null,
+        #[Assert\NotNull(message: '[UBL-SR-53]- CompanyID (VAT Identifier) must be stated when providing the PartyTaxScheme/TaxScheme/ID.')]
         #[SerializedName('CompanyID')]
         protected ?IdentifierType $companyID = null,
         #[SerializedName('TaxLevelCode')]
@@ -29,6 +31,7 @@ class PartyTaxSchemeType
         protected array $exemptionReasons = [],
         #[SerializedName('RegistrationAddress')]
         protected ?AddressType $registrationAddress = null,
+        #[Assert\NotNull(message: '[UBL-SR-53]- CompanyID (VAT Identifier) must be stated when providing the PartyTaxScheme/TaxScheme/ID.')]
         #[SerializedName('TaxScheme')]
         protected ?TaxSchemeType $taxScheme = null
     )

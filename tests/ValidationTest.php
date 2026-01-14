@@ -35,7 +35,13 @@ class ValidationTest extends TestCase
                         country: new CommonAggregateComponents\CountryType(
                             new CodeType('DE')
                         )
-                    )
+                    ),
+                    partyTaxSchemes: [
+                        new CommonAggregateComponents\PartyTaxSchemeType(
+                            companyID: new IdentifierType('DE 123456789'),
+                            taxScheme: new CommonAggregateComponents\TaxSchemeType(new IdentifierType('VAT'))
+                        )
+                    ]
                 )
             ),
             accountingCustomerParty: new CommonAggregateComponents\CustomerPartyType(

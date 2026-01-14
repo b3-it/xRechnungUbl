@@ -10,7 +10,7 @@ class PartyIdentificationType
 {
     public function __construct(
         #[SerializedName('ID')]
-        public ?IdentifierType $id = null
+        public IdentifierType $id
     )
     {
         #$this->setPrefix(CommonAggregateComponents::PREFIX);

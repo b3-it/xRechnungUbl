@@ -46,6 +46,7 @@ class PartyType
         protected ?AddressType $postalAddress = null,
         #[SerializedName('PhysicalLocation')]
         protected ?LocationType $physicalLocation = null,
+        #[Assert\Valid]
         #[SerializedName('PartyTaxScheme')]
         protected array $partyTaxSchemes = [],
         #[SerializedName('PartyLegalEntity')]
