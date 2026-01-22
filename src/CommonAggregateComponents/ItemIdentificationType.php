@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 
 class ItemIdentificationType
@@ -14,6 +15,7 @@ class ItemIdentificationType
      * @param DimensionType[] $measurementDimensions
      */
     public function __construct(
+        #[Assert\NotNull]
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
         #[SerializedName('ExtendedID')]

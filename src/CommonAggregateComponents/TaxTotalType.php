@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\AmountType;
 use UBL\UnqualifiedDataTypes\Indicator;
 
@@ -24,6 +25,7 @@ class TaxTotalType
         protected ?Indicator $taxEvidenceIndicator = null,
         #[SerializedName('TaxIncludedIndicator')]
         protected ?Indicator $taxIncludedIndicator = null,
+        #[Assert\Valid]
         #[SerializedName('TaxSubtotal')]
         protected array $taxSubtotals = []
     )

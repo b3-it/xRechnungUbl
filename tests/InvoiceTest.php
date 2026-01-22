@@ -46,7 +46,11 @@ class InvoiceTest extends AbstractTypeTest
          */
         $val = $this->deserialize($str, Invoice::class);
 
-        self::assertEmpty($this->validator->validate($val));
+        $errors = $this->validator->validate($val);
+        if (count($errors)) {
+            var_dump($errors);
+        }
+        self::assertEmpty($errors);
 
         $str2 = $this->serialize($val, [
             XmlEncoder::ROOT_NODE_NAME => Invoice::ROOT_NAME,

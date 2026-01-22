@@ -29,6 +29,8 @@ use UBL\CommonAggregateComponents\PeriodType;
 use UBL\CommonAggregateComponents\ProjectReferenceType;
 use UBL\CommonAggregateComponents\SignatureType;
 use UBL\CommonAggregateComponents\SupplierPartyType;
+use UBL\CommonAggregateComponents\TaxCategoryType;
+use UBL\CommonAggregateComponents\TaxSubtotalType;
 use UBL\CommonAggregateComponents\TaxTotalType;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -194,6 +196,7 @@ class Invoice
         protected array $paymentTerms = [],
         #[SerializedName("PrepaidPayment")]
         protected array $prepaidPayments = [],
+        #[Assert\Valid]
         #[SerializedName("AllowanceCharge")]
         protected array $allowanceCharges = [],
         #[SerializedName("TaxExchangeRate")]
@@ -204,8 +207,10 @@ class Invoice
         protected ?ExchangeRateType $paymentExchangeRate = null,
         #[SerializedName("PaymentAlternativeExchangeRate")]
         protected ?ExchangeRateType $paymentAlternativeExchangeRate = null,
+        #[Assert\Valid]
         #[SerializedName("TaxTotal")]
         protected array $taxTotals = [],
+        #[Assert\Valid]
         #[SerializedName("WithholdingTaxTotal")]
         protected array $withholdingTaxTotals = [],
         #[Assert\NotNull]
@@ -863,6 +868,16 @@ class Invoice
                     ->atPath('accounting_supplier_party.party')
                     ->addViolation();
             }
+            $registrationNames = array_filter(array_map(
+                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $supplierPartyParty->getPartyLegalEntities()
+            ));
+            $context->getValidator()->inContext($context)->validate($registrationNames, [
+                new Assert\Count(
+                    min: 1, max: 1,
+                    minMessage: '[BR-06]-An Invoice shall contain the Seller name (BT-27).',
+                    maxMessage: '[UBL-SR-09]-Seller name shall occur maximum once'
+                ),
+            ]);
             $context->getValidator()->inContext($context)->validate($supplierPartyParty->getPartyNames(), [
                 new Assert\Count(max: 1, maxMessage: '[UBL-SR-10]-Seller trader name shall occur maximum once'),
             ]);
@@ -891,12 +906,16 @@ class Invoice
         }
 
         if ($customerPartyParty = $this->getAccountingCustomerParty()?->getParty()) {
-            $registrationNames = array_map(
+            $registrationNames = array_filter(array_map(
                 fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $customerPartyParty->getPartyLegalEntities()
-            );
+            ));
 
             $context->getValidator()->inContext($context)->validate($registrationNames, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-15]-Buyer name shall occur maximum once'),
+                new Assert\Count(
+                    min: 1, max: 1,
+                    minMessage: '[BR-07]-An Invoice shall contain the Buyer name (BT-44).',
+                    maxMessage: '[UBL-SR-15]-Buyer name shall occur maximum once'
+                ),
             ]);
 
             $partyIdentifications = array_map(
@@ -939,6 +958,158 @@ class Invoice
                     maxMessage: '[UBL-SR-22]-Seller tax representative name shall occur maximum once, if the Seller has a tax representative'
                 ),
             ]);
+        }
+
+        $hasTaxSchemeParty = false;
+        if ($supplierPartyParty) {
+            $hasTaxSchemeParty = array_any($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID());
+        }
+        if (!$hasTaxSchemeParty && $taxParty) {
+            $hasTaxSchemeParty = array_any($taxParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId() === 'VAT' && $partyTaxScheme->getCompanyID());
+        }
+
+        $taxSubTotals = [];
+        foreach ($this->getTaxTotals() as $taxTotal) {
+            array_push($taxSubTotals, ...$taxTotal->getTaxSubtotals());
+        }
+        $context->getValidator()->inContext($context)->validate($taxSubTotals, [
+            new Assert\Count(
+                min: 1,
+                minMessage: '[BR-CO-18]-An Invoice shall at least have one VAT breakdown group (BG-23).'
+            )
+        ]);
+        $classifiedTaxCategories = [];
+        foreach ($this->getInvoiceLines() as $invoiceLine) {
+            if ($item = $invoiceLine->getItem()) {
+                array_push($classifiedTaxCategories, ...$item->getClassifiedTaxCategories());
+            }
+            foreach ($invoiceLine->getSubInvoiceLines() as $subInvoiceLine) {
+                if ($subItem = $subInvoiceLine->getItem()) {
+                    array_push($classifiedTaxCategories, ...$subItem->getClassifiedTaxCategories());
+                }
+            }
+        }
+        $allowanceTaxCategories = [];
+        foreach ($this->getAllowanceCharges() as $allowanceCharge) {
+            array_push($allowanceTaxCategories, ...$allowanceCharge->getTaxCategories());
+
+            $indi = $allowanceCharge->getChargeIndicator() === Indicator::TRUE;
+            $context->getValidator()->inContext($context)->validate($allowanceCharge->getAmount(), [
+                new Assert\NotNull(message: $indi ?
+                    '[BR-36]-Each Document level charge (BG-21) shall have a Document level charge amount (BT-99).' :
+                    '[BR-31]-Each Document level allowance (BG-20) shall have a Document level allowance amount (BT-92).')
+            ]);
+
+            $anyTaxVat = array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getTaxScheme()->getId() === 'VAT' && $taxCategory->getId());
+            if (!$anyTaxVat) {
+                $context->addViolation($indi ?
+                    '[BR-37]-Each Document level charge (BG-21) shall have a Document level charge VAT category code (BT-102).' :
+                    '[BR-32]-Each Document level allowance (BG-20) shall have a Document level allowance VAT category code (BT-95).'
+                );
+            }
+            if (!$allowanceCharge->getAllowanceChargeReasonCode() && empty($allowanceCharge->getAllowanceChargeReasons())) {
+                $context->addViolation($indi ?
+                    '[BR-38]-Each Document level charge (BG-21) shall have a Document level charge reason (BT-104) or a Document level charge reason code (BT-105).' :
+                    '[BR-33]-Each Document level allowance (BG-20) shall have a Document level allowance reason (BT-97) or a Document level allowance reason code (BT-98).'
+                );
+            }
+        }
+
+
+        $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'E',
+            '[BR-E-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Exempt from VAT" shall contain exactly one VAT breakdown (BG-23) with the VAT category code (BT-118) equal to "Exempt from VAT".'
+        );
+        if (!$hasTaxSchemeParty) {
+            $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'E',
+                rule02: '[BR-E-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                rule03: '[BR-E-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                rule04: '[BR-E-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
+        }
+        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'E',
+            '[BR-E-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Exempt from VAT", the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
+            '[BR-E-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Exempt from VAT", the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+        );
+
+        if (array_any($taxSubTotals, fn(TaxSubtotalType $subtotal) => $subtotal->getTaxCategory()->getId()->value === 'S') !== (
+                array_any($classifiedTaxCategories, fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === 'S') ||
+                array_any($allowanceTaxCategories, fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === 'S')
+            )) {
+            $context->buildViolation(
+                '[BR-S-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Standard rated" shall contain in the VAT breakdown (BG-23) at least one VAT category code (BT-118) equal with "Standard rated".'
+            )
+                ->setCode('BR-S-01')
+                ->addViolation();
+        }
+        if (!$hasTaxSchemeParty) {
+            $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'S',
+                '[BR-S-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                '[BR-S-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                '[BR-S-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).'
+            );
+        }
+        $this->validateVatCategoryAllowancePercent($context, 'value > 0', 'S',
+            '[BR-S-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Standard rated" the Document level allowance VAT rate (BT-96) shall be greater than zero.',
+            '[BR-S-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Standard rated" the Document level charge VAT rate (BT-103) shall be greater than zero.'
+        );
+
+        $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'Z',
+            '[BR-Z-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Zero rated" shall contain in the VAT breakdown (BG-23) exactly one VAT category code (BT-118) equal with "Zero rated".'
+        );
+        if (!$hasTaxSchemeParty) {
+            $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'Z',
+            rule02: '[BR-Z-02]-An Invoice that contains an Invoice line where the Invoiced item VAT category code (BT-151) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+            rule03: '[BR-Z-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+            rule04: '[BR-Z-04]-An Invoice that contains a Document level charge where the Document level charge VAT category code (BT-102) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
+        }
+        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'Z',
+            '[BR-Z-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
+            '[BR-Z-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Zero rated" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+        );
+
+    }
+    protected function validateByVatCategoryRule01(
+        array $taxSubTotals, array $classifiedTaxCategories, array $allowanceTaxCategories,
+        ExecutionContextInterface $context, string $vatId, string $rule01): void
+    {
+
+        if ((count(array_filter($taxSubTotals, fn(TaxSubtotalType $subtotal) => $subtotal->getTaxCategory()->getId()->value === $vatId)) == 1) !== (
+                array_any($classifiedTaxCategories, fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId) ||
+                array_any($allowanceTaxCategories, fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId)
+            )) {
+            $context->buildViolation($rule01)->addViolation();
+        }
+    }
+
+    protected function validateByVatCategoryRules(
+        array $classifiedTaxCategories, ExecutionContextInterface $context, string $vatId, string $rule02, string $rule03, string $rule04): void
+    {
+        if (array_any($classifiedTaxCategories, fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId)) {
+            $context->buildViolation($rule02)->addViolation();
+        }
+
+        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) =>
+                $allowanceCharge->getChargeIndicator() == Indicator::FALSE &&
+                array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
+            $context->buildViolation($rule03)->addViolation();
+        }
+        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) =>
+                $allowanceCharge->getChargeIndicator() == Indicator::TRUE &&
+                array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
+            $context->buildViolation($rule04)->addViolation();
+        }
+    }
+
+    protected function validateVatCategoryAllowancePercent(ExecutionContextInterface $context, string $expr, string $vatId, string $rule06, string $rule07): void
+    {
+        foreach ($this->getAllowanceCharges() as $allowanceCharge) {
+            foreach ($allowanceCharge->getTaxCategories() as $taxCategory) {
+                if ($taxCategory->getId()?->value !== $vatId) {
+                    continue;
+                }
+                $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
+                    new Assert\Expression($expr, message: $allowanceCharge->getChargeIndicator() === Indicator::TRUE ? $rule07 : $rule06),
+                ]);
+            }
         }
     }
 }

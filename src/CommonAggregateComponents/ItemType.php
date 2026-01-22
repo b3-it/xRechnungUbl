@@ -4,6 +4,7 @@
 namespace UBL\CommonAggregateComponents;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\Indicator;
 use UBL\UnqualifiedDataTypes\NameType;
 use UBL\UnqualifiedDataTypes\NumericType;
@@ -53,16 +54,22 @@ class ItemType
         protected array $brandNames = [],
         #[SerializedName('ModelName')]
         protected array $modelNames = [],
+        #[Assert\Valid]
         #[SerializedName('BuyersItemIdentification')]
         protected ?ItemIdentificationType $buyersItemIdentification = null,
+        #[Assert\Valid]
         #[SerializedName('SellersItemIdentification')]
         protected ?ItemIdentificationType $sellersItemIdentification = null,
+        #[Assert\Valid]
         #[SerializedName('ManufacturersItemIdentification')]
         protected array $manufacturersItemIdentifications = [],
+        #[Assert\Valid]
         #[SerializedName('StandardItemIdentification')]
         protected ?ItemIdentificationType $standardItemIdentification = null,
+        #[Assert\Valid]
         #[SerializedName('CatalogueItemIdentification')]
         protected ?ItemIdentificationType $catalogueItemIdentification = null,
+        #[Assert\Valid]
         #[SerializedName('AdditionalItemIdentification')]
         protected array $additionalItemIdentifications = [],
         #[SerializedName('CatalogueDocumentReference')]
@@ -77,6 +84,7 @@ class ItemType
         protected array $transactionConditions = [],
         #[SerializedName('HazardousItem')]
         protected array $hazardousItems = [],
+        #[Assert\Valid]
         #[SerializedName('ClassifiedTaxCategory')]
         protected array $classifiedTaxCategories = [],
         #[Assert\Valid]
@@ -303,11 +311,17 @@ class ItemType
         $this->originCountry = $originCountry;
     }
 
+    /**
+     * @return CommodityClassificationType[]
+     */
     public function getCommodityClassifications(): array
     {
         return $this->commodityClassifications;
     }
 
+    /**
+     * @param CommodityClassificationType[] $commodityClassifications
+     */
     public function setCommodityClassifications(array $commodityClassifications): void
     {
         $this->commodityClassifications = $commodityClassifications;

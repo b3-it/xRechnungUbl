@@ -2,8 +2,8 @@
 
 namespace UBL\CommonAggregateComponents;
 
-
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\AmountType;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
@@ -38,6 +38,7 @@ class TaxCategoryType
         protected ?TextType $tierRange = null,
         #[SerializedName('TierRatePercent')]
         protected ?PercentType $tierRatePercent = null,
+        #[Assert\NotNull]
         #[SerializedName('TaxScheme')]
         protected ?TaxSchemeType $taxScheme = null)
     {
