@@ -103,7 +103,7 @@ class InvoiceLineType
         protected ?ItemType $item = null,
         #[Assert\Sequentially([
             new Assert\Expression('value?.getPriceAmount()', message: '[BR-26]-Each Invoice line (BG-25) shall contain the Item net price (BT-146).'),
-            new Assert\Expression('value?.getPriceAmount() >= 0', message: '[BR-27]-The Item net price (BT-146) shall NOT be negative.')
+            new Assert\Expression('value?.getPriceAmount().value >= 0', message: '[BR-27]-The Item net price (BT-146) shall NOT be negative.')
         ])]
         #[SerializedName('Price')]
         protected ?PriceType $price = null,
