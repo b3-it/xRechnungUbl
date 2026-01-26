@@ -631,22 +631,22 @@ class InvoiceLineType
                         break;
                     case TaxCategoryCode::AE:
                         $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
-                            new Assert\EqualTo(0, message: '[BR-AE-05]-In an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Reverse charge" the Invoiced item VAT rate (BT-152) shall be 0 (zero).')
+                            new Assert\EqualTo(0, message: 'BR-AE-05')
                         ]);
                         break;
                     case TaxCategoryCode::S:
                         $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
-                            new Assert\Positive(message: '[BR-S-05]-In an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Standard rated" the Invoiced item VAT rate (BT-152) shall be greater than zero.')
+                            new Assert\Positive(message: 'BR-S-05')
                         ]);
                         break;
                     case TaxCategoryCode::Z:
                         $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
-                            new Assert\EqualTo(0, message: '[BR-Z-05]-In an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Zero rated" the Invoiced item VAT rate (BT-152) shall be 0 (zero).')
+                            new Assert\EqualTo(0, message: 'BR-Z-05')
                         ]);
                         break;
                     case TaxCategoryCode::G:
                         $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
-                            new Assert\EqualTo(0, message: '[BR-G-05]-In an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Export outside the EU" the Invoiced item VAT rate (BT-152) shall be 0 (zero).')
+                            new Assert\EqualTo(0, message: 'BR-G-05')
                         ]);
                         break;
                     case TaxCategoryCode::K:

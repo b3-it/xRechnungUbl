@@ -3,6 +3,8 @@
 namespace UBL;
 
 use DateTimeInterface;
+use ReflectionClass;
+use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\PropertyInfo\Extractor\ConstructorExtractor;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
@@ -22,6 +24,11 @@ use Symfony\Component\Serializer\Normalizer\DateTimeZoneNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Translation\Loader\PhpFileLoader;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use UBL\Serializer\EmptyArrayNormalizer;
 use UBL\Serializer\PrefixNameConverter;
 
@@ -112,4 +119,32 @@ class Builder
         return new Serializer($normalizers, $encoders);
     }
 
+    public function getValidator(string $locale = 'en'): ValidatorInterface
+    {
+        $builder = Validation::createValidatorBuilder()->enableAttributeMapping();
+        // if having translator and xml utils from symfony config, try to load translations
+        if (class_exists(Translator::class)) {
+            $translator = new Translator($locale);
+            if (class_exists(XmlUtils::class)) {
+                $translator->addLoader('xlf', new XliffFileLoader());
+
+                $r = new ReflectionClass(Validation::class);
+                foreach (glob(dirname($r->getFileName()).'/Resources/translations/*') as $file) {
+                    $fileNameParts = explode('.', basename($file));
+                    $translator->addResource($fileNameParts[2], $file, $fileNameParts[1], $fileNameParts[0]);
+                }
+            }
+            $translator->addLoader('php', new PhpFileLoader());
+            $r = new ReflectionClass(self::class);
+            foreach (glob(dirname($r->getFileName(), 2) .'/translations/*') as $file) {
+                $fileNameParts = explode('.', basename($file));
+                $translator->addResource($fileNameParts[2], $file, $fileNameParts[1], $fileNameParts[0]);
+            }
+            $builder->setTranslator($translator);
+        }
+
+        $builder->setTranslationDomain('validators');
+
+        return $builder->getValidator();
+    }
 }

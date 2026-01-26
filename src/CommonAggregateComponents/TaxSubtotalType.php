@@ -166,11 +166,11 @@ class TaxSubtotalType
             switch (TaxCategoryCode::tryFrom($taxCat->getId()->value)) {
                 case TaxCategoryCode::E:
                     $context->getValidator()->inContext($context)->validate($this->taxAmount?->value, [
-                        new Assert\EqualTo(0, message: '[BR-E-09]-The VAT category tax amount (BT-117) In a VAT breakdown (BG-23) where the VAT category code (BT-118) equals "Exempt from VAT" shall equal 0 (zero).')
+                        new Assert\EqualTo(0, message: 'BR-E-09')
                     ]);
                     if (!$taxCat->getTaxExemptionReasonCode() && empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
-                            '[BR-E-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "Exempt from VAT" shall have a VAT exemption reason code (BT-121) or a VAT exemption reason text (BT-120).'
+                            'BR-E-10'
                         )
                             ->setCode('BR-E-10')
                             ->atPath('tax_category')
@@ -178,10 +178,10 @@ class TaxSubtotalType
                     }
                     break;
                 case TaxCategoryCode::S:
-                    $this->checkTaxAmount($context, '[BR-S-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where VAT category code (BT-118) is "Standard rated" shall equal the VAT category taxable amount (BT-116) multiplied by the VAT category rate (BT-119).');
+                    $this->checkTaxAmount($context, 'BR-S-09');
                     if ($taxCat->getTaxExemptionReasonCode() || !empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
-                            '[BR-S-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "Standard rate" shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).'
+                            'BR-S-10'
                         )
                             ->setCode('BR-S-10')
                             ->atPath('tax_category')
@@ -190,11 +190,11 @@ class TaxSubtotalType
                     break;
                 case TaxCategoryCode::Z:
                     $context->getValidator()->inContext($context)->validate($this->taxAmount?->value, [
-                        new Assert\EqualTo(0, message: '[BR-Z-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where VAT category code (BT-118) is "Zero rated" shall equal 0 (zero).')
+                        new Assert\EqualTo(0, message: 'BR-Z-09')
                     ]);
                     if (!$taxCat->getTaxExemptionReasonCode() && empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
-                            '[BR-Z-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "Zero rated" shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).'
+                            'BR-Z-10'
                         )
                             ->setCode('BR-Z-10')
                             ->atPath('tax_category')
@@ -203,11 +203,11 @@ class TaxSubtotalType
                     break;
                 case TaxCategoryCode::AE:
                     $context->getValidator()->inContext($context)->validate($this->taxAmount?->value, [
-                        new Assert\EqualTo(0, message: '[BR-AE-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where the VAT category code (BT-118) is "Reverse charge" shall be 0 (zero).')
+                        new Assert\EqualTo(0, message: 'BR-AE-09')
                     ]);
                     if (!$taxCat->getTaxExemptionReasonCode() && empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
-                            '[BR-AE-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "Reverse charge" shall have a VAT exemption reason code (BT-121), meaning "Reverse charge" or the VAT exemption reason text (BT-120) "Reverse charge" (or the equivalent standard text in another language).'
+                            'BR-AE-10'
                         )
                             ->setCode('BR-AE-10')
                             ->atPath('tax_category')
@@ -216,11 +216,11 @@ class TaxSubtotalType
                     break;
                 case TaxCategoryCode::G:
                     $context->getValidator()->inContext($context)->validate($this->taxAmount?->value, [
-                        new Assert\EqualTo(0, message: '[BR-G-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where the VAT category code (BT-118) is "Export outside the EU" shall be 0 (zero).')
+                        new Assert\EqualTo(0, message: 'BR-G-09')
                     ]);
                     if (!$taxCat->getTaxExemptionReasonCode() && empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
-                            '[BR-G-10]-A VAT breakdown (BG-23) with the VAT Category code (BT-118) "Export outside the EU" shall have a VAT exemption reason code (BT-121), meaning "Export outside the EU" or the VAT exemption reason text (BT-120) "Export outside the EU" (or the equivalent standard text in another language).'
+                            'BR-G-10'
                         )
                             ->setCode('BR-G-10')
                             ->atPath('tax_category')

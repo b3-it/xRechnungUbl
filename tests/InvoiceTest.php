@@ -16,7 +16,7 @@ class InvoiceTest extends AbstractTypeTest
     protected function setUp(): void
     {
         parent::setUp();
-        $this->validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
+        $this->validator = $this->builder->getValidator();
     }
 
 

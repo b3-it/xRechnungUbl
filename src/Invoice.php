@@ -1017,79 +1017,80 @@ class Invoice
         }
 
         $this->validateByVatCategoryRule01Percent($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'S',
-            '[BR-S-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Standard rated" shall contain in the VAT breakdown (BG-23) at least one VAT category code (BT-118) equal with "Standard rated".'
+            'BR-S-01'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'S',
-                rule02: '[BR-S-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule03: '[BR-S-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule04: '[BR-S-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).'
+                rule02: 'BR-S-02',
+                rule03: 'BR-S-03',
+                rule04: 'BR-S-04'
             );
         }
         $this->validateVatCategoryAllowancePercent($context, 'value > 0', 'S',
-            '[BR-S-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Standard rated" the Document level allowance VAT rate (BT-96) shall be greater than zero.',
-            '[BR-S-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Standard rated" the Document level charge VAT rate (BT-103) shall be greater than zero.'
+            'BR-S-06',
+            'BR-S-07'
         );
-        $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'S', '[BR-S-08]-For each different value of VAT category rate (BT-119) where the VAT category code (BT-118) is "Standard rated", the VAT category taxable amount (BT-116) in a VAT breakdown (BG-23) shall equal the sum of Invoice line net amounts (BT-131) plus the sum of document level charge amounts (BT-99) minus the sum of document level allowance amounts (BT-92) where the VAT category code (BT-151, BT-102, BT-95) is "Standard rated" and the VAT rate (BT-152, BT-103, BT-96) equals the VAT category rate (BT-119).');
+        $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'S', 'BR-S-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'E',
-            '[BR-E-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Exempt from VAT" shall contain exactly one VAT breakdown (BG-23) with the VAT category code (BT-118) equal to "Exempt from VAT".'
+            'BR-E-01'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'E',
-                rule02: '[BR-E-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule03: '[BR-E-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule04: '[BR-E-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Exempt from VAT" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
+                rule02: 'BR-E-02',
+                rule03: 'BR-E-03',
+                rule04: 'BR-E-04');
         }
         $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'E',
-            '[BR-E-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Exempt from VAT", the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
-            '[BR-E-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Exempt from VAT", the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+            'BR-E-06',
+            'BR-E-07'
         );
+        $this->checkTaxableAmount($taxSubTotals, $context, 'Z', 'BR-E-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'AE',
-            '[BR-AE-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Reverse charge" shall contain in the VAT Breakdown (BG-23) exactly one VAT category code (BT-118) equal with "VAT reverse charge".'
+            'BR-AE-01'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'AE',
-                rule02: '[BR-AE-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Reverse charge" shall contain the Seller VAT Identifier (BT-31), the Seller Tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63) and the Buyer VAT identifier (BT-48) and/or the Buyer legal registration identifier (BT-47).',
-                rule03: '[BR-AE-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Reverse charge" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63) and the Buyer VAT identifier (BT-48) and/or the Buyer legal registration identifier (BT-47).',
-                rule04: '[BR-AE-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Reverse charge" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63) and the Buyer VAT identifier (BT-48) and/or the Buyer legal registration identifier (BT-47).');
+                rule02: 'BR-AE-02',
+                rule03: 'BR-AE-03',
+                rule04: 'BR-AE-04');
         }
         $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'AE',
-            '[BR-AE-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Reverse charge" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
-            '[BR-AE-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Reverse charge" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+            'BR-AE-06',
+            'BR-AE-07'
         );
-        $this->checkTaxableAmount($taxSubTotals, $context, 'AE', '[BR-AE-08]-In a VAT breakdown (BG-23) where the VAT category code (BT-118) is "Reverse charge" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amounts (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Reverse charge".');
+        $this->checkTaxableAmount($taxSubTotals, $context, 'AE', 'BR-AE-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'G',
-            '[BR-G-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Export outside the EU" shall contain in the VAT breakdown (BG-23) exactly one VAT category code (BT-118) equal with "Export outside the EU".'
+            'BR-G-01'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'G',
-                rule02: '[BR-G-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Export outside the EU" shall contain the Seller VAT Identifier (BT-31) or the Seller tax representative VAT identifier (BT-63).',
-                rule03: '[BR-G-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Export outside the EU" shall contain the Seller VAT Identifier (BT-31) or the Seller tax representative VAT identifier (BT-63).',
-                rule04: '[BR-G-04]-An Invoice that contains a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Export outside the EU" shall contain the Seller VAT Identifier (BT-31) or the Seller tax representative VAT identifier (BT-63).');
+                rule02: 'BR-G-02',
+                rule03: 'BR-G-03',
+                rule04: 'BR-G-04');
         }
         $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'G',
-            '[BR-G-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Export outside the EU" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
-            '[BR-G-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Export outside the EU" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+            'BR-G-06',
+            'BR-G-07'
         );
-        $this->checkTaxableAmount($taxSubTotals, $context, 'G', '[BR-G-08]-In a VAT breakdown (BG-23) where the VAT category code (BT-118) is "Export outside the EU" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amounts (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Export outside the EU".');
+        $this->checkTaxableAmount($taxSubTotals, $context, 'G', 'BR-G-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'Z',
-            '[BR-Z-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Zero rated" shall contain in the VAT breakdown (BG-23) exactly one VAT category code (BT-118) equal with "Zero rated".'
+            'BR-Z-01'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'Z',
-                rule02: '[BR-Z-02]-An Invoice that contains an Invoice line where the Invoiced item VAT category code (BT-151) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule03: '[BR-Z-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-                rule04: '[BR-Z-04]-An Invoice that contains a Document level charge where the Document level charge VAT category code (BT-102) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
+                rule02: 'BR-Z-02',
+                rule03: 'BR-Z-03',
+                rule04: 'BR-Z-04');
         }
         $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'Z',
-            '[BR-Z-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
-            '[BR-Z-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Zero rated" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
+            'BR-Z-06',
+            'BR-Z-07'
         );
-        $this->checkTaxableAmount($taxSubTotals, $context, 'Z', '[BR-Z-08]-In a VAT breakdown (BG-23) where VAT category code (BT-118) is "Zero rated" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amount (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Zero rated".');
+        $this->checkTaxableAmount($taxSubTotals, $context, 'Z', 'BR-Z-08');
     }
 
     protected function validateByVatCategoryRule01(
