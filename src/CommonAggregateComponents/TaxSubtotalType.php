@@ -178,6 +178,7 @@ class TaxSubtotalType
                     }
                     break;
                 case TaxCategoryCode::S:
+                    $this->checkTaxAmount($context, '[BR-S-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where VAT category code (BT-118) is "Standard rated" shall equal the VAT category taxable amount (BT-116) multiplied by the VAT category rate (BT-119).');
                     if ($taxCat->getTaxExemptionReasonCode() || !empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
                             '[BR-S-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "Standard rate" shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).'
@@ -253,6 +254,7 @@ class TaxSubtotalType
                     }
                     break;
                 case TaxCategoryCode::L:
+                    $this->checkTaxAmount($context, '[BR-AF-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where VAT category code (BT-118) is "IGIC" shall equal the VAT category taxable amount (BT-116) multiplied by the VAT category rate (BT-119).');
                     if ($taxCat->getTaxExemptionReasonCode() || !empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
                             '[BR-AF-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "IGIC" shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).'
@@ -263,6 +265,7 @@ class TaxSubtotalType
                     }
                     break;
                 case TaxCategoryCode::M:
+                    $this->checkTaxAmount($context, '[BR-AG-09]-The VAT category tax amount (BT-117) in a VAT breakdown (BG-23) where VAT category code (BT-118) is "IPSI" shall equal the VAT category taxable amount (BT-116) multiplied by the VAT category rate (BT-119).');
                     if ($taxCat->getTaxExemptionReasonCode() || !empty($taxCat->getTaxExemptionReasons())) {
                         $context->buildViolation(
                             '[BR-AG-10]-A VAT breakdown (BG-23) with VAT Category code (BT-118) "IPSI" shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).'
@@ -278,5 +281,17 @@ class TaxSubtotalType
                     throw new ValidatorException('[BR-CL-17]-Invoice tax categories MUST be coded using UNCL5305 code list');
             }
         }
+    }
+
+    protected function checkTaxAmount(ExecutionContextInterface $context, string $rule): void
+    {
+        if ($this->taxAmount?->value == null || $this->taxableAmount?->value == null || $this->percent?->value == null) {
+            return;
+        }
+        $calcTax = round(abs($this->taxableAmount->value) * $this->percent->value / 100, 2);
+        if (abs($this->taxAmount->value) - 1 < $calcTax && abs($this->taxAmount->value) + 1 > $calcTax) {
+            return;
+        }
+        $context->addViolation($rule);
     }
 }

@@ -80,80 +80,80 @@ class Invoice
         #protected ?ext:UBLExtensionsType $ext:UBLExtensions = null,
 
         #[SerializedName("UBLVersionID")]
-        protected ?IdentifierType $uBLVersionID = null,
+        protected ?IdentifierType     $uBLVersionID = null,
         #[Assert\NotNull(message: '[BR-01]-An Invoice shall have a Specification identifier (BT-24).')]
         #[SerializedName("CustomizationID")]
-        protected ?IdentifierType $customizationID = null,
+        protected ?IdentifierType     $customizationID = null,
         #[SerializedName("ProfileID")]
-        protected ?IdentifierType $profileID = null,
+        protected ?IdentifierType     $profileID = null,
         #[SerializedName("ProfileExecutionID")]
-        protected ?IdentifierType $profileExecutionID = null,
+        protected ?IdentifierType     $profileExecutionID = null,
         #[Assert\NotNull(message: '[BR-02]-An Invoice shall have an Invoice number (BT-1).')]
         #[SerializedName("ID")]
-        protected ?IdentifierType $id = null,
+        protected ?IdentifierType     $id = null,
         #[SerializedName("CopyIndicator")]
-        protected ?Indicator $copyIndicator = null,
+        protected ?Indicator          $copyIndicator = null,
         #[SerializedName("UUID")]
-        protected ?IdentifierType $uUID = null,
+        protected ?IdentifierType     $uUID = null,
         #[Assert\NotNull(message: '[BR-03]-An Invoice shall have an Invoice issue date (BT-2).')]
         #[SerializedName("IssueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
-        protected ?DateTimeInterface $issueDate = null,
+        protected ?DateTimeInterface  $issueDate = null,
         #[SerializedName("IssueTime")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::TIME_FORMAT])]
-        protected ?DateTimeInterface $issueTime = null,
+        protected ?DateTimeInterface  $issueTime = null,
         #[SerializedName("DueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
-        protected ?DateTimeInterface $dueDate = null,
+        protected ?DateTimeInterface  $dueDate = null,
         #[Assert\NotNull(message: '[BR-04]-An Invoice shall have an Invoice type code (BT-3).')]
         #[SerializedName("InvoiceTypeCode")]
-        protected ?CodeType $invoiceTypeCode = null,
+        protected ?CodeType           $invoiceTypeCode = null,
         #[SerializedName("Note")]
-        protected array $notes = [],
+        protected array               $notes = [],
         #[SerializedName("TaxPointDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
-        protected ?DateTimeInterface $taxPointDate = null,
+        protected ?DateTimeInterface  $taxPointDate = null,
         #[Assert\NotNull(message: '[BR-05]-An Invoice shall have an Invoice currency code (BT-5).')]
         #[SerializedName("DocumentCurrencyCode")]
-        protected ?CodeType $documentCurrencyCode = null,
+        protected ?CodeType           $documentCurrencyCode = null,
         #[SerializedName("TaxCurrencyCode")]
-        protected ?CodeType $taxCurrencyCode = null,
+        protected ?CodeType           $taxCurrencyCode = null,
         #[SerializedName("PricingCurrencyCode")]
-        protected ?CodeType $pricingCurrencyCode = null,
+        protected ?CodeType           $pricingCurrencyCode = null,
         #[SerializedName("PaymentCurrencyCode")]
-        protected ?CodeType $paymentCurrencyCode = null,
+        protected ?CodeType           $paymentCurrencyCode = null,
         #[SerializedName("PaymentAlternativeCurrencyCode")]
-        protected ?CodeType $paymentAlternativeCurrencyCode = null,
+        protected ?CodeType           $paymentAlternativeCurrencyCode = null,
         #[SerializedName("AccountingCostCode")]
-        protected ?CodeType $accountingCostCode = null,
+        protected ?CodeType           $accountingCostCode = null,
         #[SerializedName("AccountingCost")]
-        protected ?TextType $accountingCost = null,
+        protected ?TextType           $accountingCost = null,
         #[SerializedName("LineCountNumeric")]
-        protected ?NumericType $lineCountNumeric = null,
+        protected ?NumericType        $lineCountNumeric = null,
         #[SerializedName("BuyerReference")]
-        protected ?TextType $buyerReference = null,
+        protected ?TextType           $buyerReference = null,
         #[SerializedName("InvoicePeriod")]
-        protected array $invoicePeriods = [],
+        protected array               $invoicePeriods = [],
         #[SerializedName("OrderReference")]
         protected ?OrderReferenceType $orderReference = null,
         #[SerializedName("BillingReference")]
-        protected array $billingReferences = [],
+        protected array               $billingReferences = [],
         #[SerializedName("DespatchDocumentReference")]
-        protected array $despatchDocumentReferences = [],
+        protected array               $despatchDocumentReferences = [],
         #[SerializedName("ReceiptDocumentReference")]
-        protected array $receiptDocumentReferences = [],
+        protected array               $receiptDocumentReferences = [],
         #[SerializedName("StatementDocumentReference")]
-        protected array $statementDocumentReferences = [],
+        protected array               $statementDocumentReferences = [],
         #[SerializedName("OriginatorDocumentReference")]
-        protected array $originatorDocumentReferences = [],
+        protected array               $originatorDocumentReferences = [],
         #[SerializedName("ContractDocumentReference")]
-        protected array $contractDocumentReferences = [],
+        protected array               $contractDocumentReferences = [],
         #[SerializedName("AdditionalDocumentReference")]
-        protected array $additionalDocumentReferences = [],
+        protected array               $additionalDocumentReferences = [],
         #[SerializedName("ProjectReference")]
-        protected array $projectReferences = [],
+        protected array               $projectReferences = [],
         #[SerializedName("Signature")]
-        protected array $signatures = [],
+        protected array               $signatures = [],
         #[Assert\Valid]
         #[Assert\Sequentially([
             new Assert\Expression('value?.getParty()?.getPostalAddress()', message: '[BR-08]-An Invoice shall contain the Seller postal address.'),
@@ -162,7 +162,7 @@ class Invoice
             new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'),
         ])]
         #[SerializedName("AccountingSupplierParty")]
-        protected ?SupplierPartyType $accountingSupplierParty = null,
+        protected ?SupplierPartyType  $accountingSupplierParty = null,
         #[Assert\Valid]
         #[Assert\Sequentially([
             new Assert\Expression('value?.getParty()?.getPostalAddress()', '[BR-10]-An Invoice shall contain the Buyer postal address (BG-8).'),
@@ -171,59 +171,59 @@ class Invoice
             new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-63]-The Buyer electronic address (BT-49) shall have a Scheme identifier.'),
         ])]
         #[SerializedName("AccountingCustomerParty")]
-        protected ?CustomerPartyType $accountingCustomerParty = null,
+        protected ?CustomerPartyType  $accountingCustomerParty = null,
         #[Assert\Valid]
         #[SerializedName("PayeeParty")]
-        protected ?PartyType $payeeParty = null,
+        protected ?PartyType          $payeeParty = null,
         #[SerializedName("BuyerCustomerParty")]
-        protected ?CustomerPartyType $buyerCustomerParty = null,
+        protected ?CustomerPartyType  $buyerCustomerParty = null,
         #[SerializedName("SellerSupplierParty")]
-        protected ?SupplierPartyType $sellerSupplierParty = null,
+        protected ?SupplierPartyType  $sellerSupplierParty = null,
         #[Assert\Valid]
         #[Assert\When('value', [
             new Assert\Expression('value.getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-20]-The Seller tax representative postal address (BG-12) shall contain a Tax representative country code (BT-69), if the Seller (BG-4) has a Seller tax representative party (BG-11).'),
         ])]
         #[SerializedName("TaxRepresentativeParty")]
-        protected ?PartyType $taxRepresentativeParty = null,
+        protected ?PartyType          $taxRepresentativeParty = null,
         #[SerializedName("Delivery")]
-        protected array $deliveries = [],
+        protected array               $deliveries = [],
         #[SerializedName("DeliveryTerms")]
-        protected ?DeliveryTermsType $deliveryTerms = null,
+        protected ?DeliveryTermsType  $deliveryTerms = null,
         #[Assert\Valid]
         #[SerializedName("PaymentMeans")]
-        protected array $paymentMeans = [],
+        protected array               $paymentMeans = [],
         #[SerializedName("PaymentTerms")]
-        protected array $paymentTerms = [],
+        protected array               $paymentTerms = [],
         #[SerializedName("PrepaidPayment")]
-        protected array $prepaidPayments = [],
+        protected array               $prepaidPayments = [],
         #[Assert\Valid]
         #[SerializedName("AllowanceCharge")]
-        protected array $allowanceCharges = [],
+        protected array               $allowanceCharges = [],
         #[SerializedName("TaxExchangeRate")]
-        protected ?ExchangeRateType $taxExchangeRate = null,
+        protected ?ExchangeRateType   $taxExchangeRate = null,
         #[SerializedName("PricingExchangeRate")]
-        protected ?ExchangeRateType $pricingExchangeRate = null,
+        protected ?ExchangeRateType   $pricingExchangeRate = null,
         #[SerializedName("PaymentExchangeRate")]
-        protected ?ExchangeRateType $paymentExchangeRate = null,
+        protected ?ExchangeRateType   $paymentExchangeRate = null,
         #[SerializedName("PaymentAlternativeExchangeRate")]
-        protected ?ExchangeRateType $paymentAlternativeExchangeRate = null,
+        protected ?ExchangeRateType   $paymentAlternativeExchangeRate = null,
         #[Assert\Valid]
         #[SerializedName("TaxTotal")]
-        protected array $taxTotals = [],
+        protected array               $taxTotals = [],
         #[Assert\Valid]
         #[SerializedName("WithholdingTaxTotal")]
-        protected array $withholdingTaxTotals = [],
+        protected array               $withholdingTaxTotals = [],
         #[Assert\NotNull]
         #[Assert\Valid]
         #[SerializedName("LegalMonetaryTotal")]
-        protected ?MonetaryTotalType $legalMonetaryTotal = null,
+        protected ?MonetaryTotalType  $legalMonetaryTotal = null,
         #[Assert\Count(
             min: 1,
             minMessage: "[BR-16]-An Invoice shall have at least one Invoice line (BG-25)"
         )]
         #[Assert\Valid]
         #[SerializedName("InvoiceLine")]
-        protected array $invoiceLines = [],
+        protected array               $invoiceLines = [],
     )
     {
     }
@@ -450,7 +450,7 @@ class Invoice
 
     public function addInvoicePeriod(?PeriodType $invoicePeriod = null): PeriodType
     {
-        return $this->invoicePeriods []= $invoicePeriod ?? new PeriodType;
+        return $this->invoicePeriods [] = $invoicePeriod ?? new PeriodType;
     }
 
     public function getOrderReference(): ?OrderReferenceType
@@ -564,7 +564,6 @@ class Invoice
     {
         $this->contractDocumentReferences = $contractDocumentReferences;
     }
-
 
 
     /**
@@ -700,7 +699,7 @@ class Invoice
 
     public function addPaymentMeans(?PaymentMeansType $paymentMeans = null): PaymentMeansType
     {
-        return $this->paymentMeans []= $paymentMeans ?? new PaymentMeansType();
+        return $this->paymentMeans [] = $paymentMeans ?? new PaymentMeansType();
     }
 
     /**
@@ -725,7 +724,7 @@ class Invoice
 
     public function addPaymentTerms(?PaymentTermsType $paymentTerms = null): PaymentTermsType
     {
-        return $this->paymentTerms []= $paymentTerms ?? new PaymentTermsType();
+        return $this->paymentTerms [] = $paymentTerms ?? new PaymentTermsType();
     }
 
     /**
@@ -764,7 +763,7 @@ class Invoice
 
     public function addAllowanceCharge(?AllowanceChargeType $allowanceCharge = null): AllowanceChargeType
     {
-        return $this->allowanceCharges []= $allowanceCharge ?? new AllowanceChargeType;
+        return $this->allowanceCharges [] = $allowanceCharge ?? new AllowanceChargeType;
     }
 
 
@@ -791,7 +790,7 @@ class Invoice
 
     public function addTaxTotal(?TaxTotalType $taxTotal = null): TaxTotalType
     {
-        return $this->taxTotals []= $taxTotal ?? new TaxTotalType;
+        return $this->taxTotals [] = $taxTotal ?? new TaxTotalType;
     }
 
     public function getWithholdingTaxTotals(): array
@@ -836,7 +835,7 @@ class Invoice
 
     public function addInvoiceLine(?InvoiceLineType $invoiceLine = null): InvoiceLineType
     {
-        return $this->invoiceLines []= $invoiceLine ?? new InvoiceLineType;
+        return $this->invoiceLines [] = $invoiceLine ?? new InvoiceLineType;
     }
 
     #[Assert\Callback]
@@ -851,16 +850,15 @@ class Invoice
 
         if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
             if (!(array_any(
-                $supplierPartyParty->getPartyTaxSchemes(),
-                fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()?->getId()?->value === 'VAT' && !is_null($partyTaxScheme->getCompanyID())
+                    $supplierPartyParty->getPartyTaxSchemes(),
+                    fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()?->getId()?->value === 'VAT' && !is_null($partyTaxScheme->getCompanyID())
                 ) || array_any(
                     $supplierPartyParty->getPartyIdentifications(),
                     fn(PartyIdentificationType $partyIdentification) => !is_null($partyIdentification->id)
                 ) || array_any(
                     $supplierPartyParty->getPartyLegalEntities(),
                     fn(PartyLegalEntityType $partyLegalEntity) => !is_null($partyLegalEntity->getCompanyID())
-                )))
-            {
+                ))) {
                 $context->buildViolation(
                     '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.'
                 )
@@ -968,6 +966,9 @@ class Invoice
             $hasTaxSchemeParty = array_any($taxParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId() === 'VAT' && $partyTaxScheme->getCompanyID());
         }
 
+        /**
+         * @var $taxSubTotals TaxSubtotalType[]
+         */
         $taxSubTotals = [];
         foreach ($this->getTaxTotals() as $taxTotal) {
             array_push($taxSubTotals, ...$taxTotal->getTaxSubtotals());
@@ -1051,24 +1052,26 @@ class Invoice
             '[BR-S-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Standard rated" the Document level allowance VAT rate (BT-96) shall be greater than zero.',
             '[BR-S-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Standard rated" the Document level charge VAT rate (BT-103) shall be greater than zero.'
         );
+        $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'S', '[BR-S-08]-For each different value of VAT category rate (BT-119) where the VAT category code (BT-118) is "Standard rated", the VAT category taxable amount (BT-116) in a VAT breakdown (BG-23) shall equal the sum of Invoice line net amounts (BT-131) plus the sum of document level charge amounts (BT-99) minus the sum of document level allowance amounts (BT-92) where the VAT category code (BT-151, BT-102, BT-95) is "Standard rated" and the VAT rate (BT-152, BT-103, BT-96) equals the VAT category rate (BT-119).');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'Z',
             '[BR-Z-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Zero rated" shall contain in the VAT breakdown (BG-23) exactly one VAT category code (BT-118) equal with "Zero rated".'
         );
         if (!$hasTaxSchemeParty) {
             $this->validateByVatCategoryRules($classifiedTaxCategories, $context, 'Z',
-            rule02: '[BR-Z-02]-An Invoice that contains an Invoice line where the Invoiced item VAT category code (BT-151) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-            rule03: '[BR-Z-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
-            rule04: '[BR-Z-04]-An Invoice that contains a Document level charge where the Document level charge VAT category code (BT-102) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
+                rule02: '[BR-Z-02]-An Invoice that contains an Invoice line where the Invoiced item VAT category code (BT-151) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                rule03: '[BR-Z-03]-An Invoice that contains a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
+                rule04: '[BR-Z-04]-An Invoice that contains a Document level charge where the Document level charge VAT category code (BT-102) is "Zero rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).');
         }
         $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'Z',
             '[BR-Z-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
             '[BR-Z-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Zero rated" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
         );
-
+        $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'Z', '[BR-Z-08]-In a VAT breakdown (BG-23) where VAT category code (BT-118) is "Zero rated" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amount (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Zero rated".');
     }
+
     protected function validateByVatCategoryRule01(
-        array $taxSubTotals, array $classifiedTaxCategories, array $allowanceTaxCategories,
+        array                     $taxSubTotals, array $classifiedTaxCategories, array $allowanceTaxCategories,
         ExecutionContextInterface $context, string $vatId, string $rule01): void
     {
 
@@ -1087,14 +1090,12 @@ class Invoice
             $context->buildViolation($rule02)->addViolation();
         }
 
-        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) =>
-                $allowanceCharge->getChargeIndicator() == Indicator::FALSE &&
-                array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
+        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) => $allowanceCharge->getChargeIndicator() == Indicator::FALSE &&
+            array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
             $context->buildViolation($rule03)->addViolation();
         }
-        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) =>
-                $allowanceCharge->getChargeIndicator() == Indicator::TRUE &&
-                array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
+        if (array_any($this->getAllowanceCharges(), fn(AllowanceChargeType $allowanceCharge) => $allowanceCharge->getChargeIndicator() == Indicator::TRUE &&
+            array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getId()->value === $vatId))) {
             $context->buildViolation($rule04)->addViolation();
         }
     }
@@ -1111,5 +1112,73 @@ class Invoice
                 ]);
             }
         }
+    }
+
+    /**
+     * @param TaxSubtotalType[] $taxSubTotals
+     */
+    protected function checkTaxableAmountWithPercent(array $taxSubTotals, ExecutionContextInterface $context, string $vatId, string $rule): void
+    {
+        foreach ($taxSubTotals as $subTotal) {
+            if (is_null($subTotal->getTaxableAmount()?->value)) {
+                continue;
+            }
+            if ($vatId !== $subTotal->getTaxCategory()?->getId()?->value) {
+                continue;
+            }
+            if ('VAT' !== $subTotal->getTaxCategory()?->getTaxScheme()?->getId()?->value) {
+                continue;
+            }
+            $taxPercent = $subTotal->getTaxCategory()?->getPercent()?->value;
+
+            $filter = fn(TaxCategoryType $itemTaxCat) => $vatId === $itemTaxCat->getId()?->value
+                && $taxPercent === $itemTaxCat->getPercent()?->value;
+
+            $calcTaxAmount = $this->sumInvoiceLines($this->getInvoiceLines(), $filter);
+            $calcTaxAmount += $this->sumAllowanceCharges($this->getAllowanceCharges(), $filter);
+
+            if (
+                $subTotal->getTaxableAmount()?->value - 1 < $calcTaxAmount &&
+                $subTotal->getTaxableAmount()?->value + 1 > $calcTaxAmount
+            ) {
+                continue;
+            }
+            $context->addViolation($rule);
+        }
+    }
+
+    /**
+     * @param InvoiceLineType[] $invoiceLines
+     * @param callable $filter
+     * @return float
+     */
+    protected function sumInvoiceLines(array $invoiceLines, callable $filter): float
+    {
+        $sum = 0;
+        foreach (array_filter($invoiceLines, fn(InvoiceLineType $invoiceLine) => $invoiceLine->getItem()
+            && array_any($invoiceLine->getItem()->getClassifiedTaxCategories(), $filter)
+                 ) as $invoiceLine) {
+            $sum += $invoiceLine->getLineExtensionAmount()?->value ?? 0;
+            $sum += $this->sumInvoiceLines($invoiceLine->getSubInvoiceLines(), $filter);
+        }
+        return $sum;
+    }
+
+    /**
+     * @param AllowanceChargeType[] $allowances
+     */
+    protected function sumAllowanceCharges(array $allowances, callable $filter): float
+    {
+        $sum = 0.0;
+        foreach ($allowances as $allowance) {
+            if (array_any($allowance->getTaxCategories(), $filter)) {
+                if ($allowance->getChargeIndicator() == Indicator::TRUE) {
+                    $sum += $allowance->getAmount()?->value ?? 0;
+                } else {
+                    $sum -= $allowance->getAmount()?->value ?? 0;
+                }
+            }
+        }
+        return $sum;
     }
 }
