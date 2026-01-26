@@ -1067,7 +1067,7 @@ class Invoice
             '[BR-Z-06]-In a Document level allowance (BG-20) where the Document level allowance VAT category code (BT-95) is "Zero rated" the Document level allowance VAT rate (BT-96) shall be 0 (zero).',
             '[BR-Z-07]-In a Document level charge (BG-21) where the Document level charge VAT category code (BT-102) is "Zero rated" the Document level charge VAT rate (BT-103) shall be 0 (zero).'
         );
-        $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'Z', '[BR-Z-08]-In a VAT breakdown (BG-23) where VAT category code (BT-118) is "Zero rated" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amount (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Zero rated".');
+        $this->checkTaxableAmount($taxSubTotals, $context, 'Z', '[BR-Z-08]-In a VAT breakdown (BG-23) where VAT category code (BT-118) is "Zero rated" the VAT category taxable amount (BT-116) shall equal the sum of Invoice line net amount (BT-131) minus the sum of Document level allowance amounts (BT-92) plus the sum of Document level charge amounts (BT-99) where the VAT category codes (BT-151, BT-95, BT-102) are "Zero rated".');
     }
 
     protected function validateByVatCategoryRule01(
@@ -1111,6 +1111,36 @@ class Invoice
                     new Assert\Expression($expr, message: $allowanceCharge->getChargeIndicator() === Indicator::TRUE ? $rule07 : $rule06),
                 ]);
             }
+        }
+    }
+
+    /**
+     * @param TaxSubtotalType[] $taxSubTotals
+     */
+    protected function checkTaxableAmount(array $taxSubTotals, ExecutionContextInterface $context, string $vatId, string $rule): void
+    {
+        foreach ($taxSubTotals as $subTotal) {
+            if (is_null($subTotal->getTaxableAmount()?->value)) {
+                continue;
+            }
+            if ($vatId !== $subTotal->getTaxCategory()?->getId()?->value) {
+                continue;
+            }
+            if ('VAT' !== $subTotal->getTaxCategory()?->getTaxScheme()?->getId()?->value) {
+                continue;
+            }
+
+            $filter = fn(TaxCategoryType $itemTaxCat) => $vatId === $itemTaxCat->getId()?->value;
+
+            $calcTaxAmount = $this->sumInvoiceLines($this->getInvoiceLines(), $filter);
+            $calcTaxAmount += $this->sumAllowanceCharges($this->getAllowanceCharges(), $filter);
+
+            if (
+                $subTotal->getTaxableAmount()?->value == $calcTaxAmount
+            ) {
+                continue;
+            }
+            $context->addViolation($rule);
         }
     }
 
