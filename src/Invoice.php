@@ -132,6 +132,8 @@ class Invoice
         protected ?NumericType        $lineCountNumeric = null,
         #[SerializedName("BuyerReference")]
         protected ?TextType           $buyerReference = null,
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-08')]
         #[SerializedName("InvoicePeriod")]
         protected array               $invoicePeriods = [],
         #[SerializedName("OrderReference")]
@@ -857,8 +859,27 @@ class Invoice
             new Assert\Currency(message: '[BR-CL-05]-Tax currency code MUST be coded using ISO code list 4217 alpha-3')
         ]);
 
-        $context->getValidator()->inContext($context)->validate($this->getInvoicePeriods(), [
-            new Assert\Count(max: 1, maxMessage: 'UBL-SR-08')
+        $invoicePeriodDescriptionCodes = array_merge([], ...array_map(
+            fn (PeriodType $period) => $period->getDescriptionCodes(),
+            $this->getInvoicePeriods()
+        ));
+        $context->getValidator()->inContext($context)->validate($invoicePeriodDescriptionCodes, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-49')
+        ]);
+
+        $paymentMeansDueDates = array_filter(array_map(
+            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentDueDate(),
+            $this->getPaymentMeans()
+        ));
+        $context->getValidator()->inContext($context)->validate($paymentMeansDueDates, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-45')
+        ]);
+        $paymentMeansCodeNames = array_filter(array_map(
+            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentMeansCode(),
+            $this->getPaymentMeans()
+        ));
+        $context->getValidator()->inContext($context)->validate($paymentMeansCodeNames, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-46')
         ]);
 
         $paymentTermsNotes = array_merge([], ...array_map(fn(PaymentTermsType $paymentTerms) => $paymentTerms->getNotes(), $this->getPaymentTerms()));
