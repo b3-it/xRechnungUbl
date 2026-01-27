@@ -156,7 +156,7 @@ class TaxSubtotalType
     {
         if ($taxCat = $this->getTaxCategory()) {
             $context->getValidator()->inContext($context)->validate($taxCat->getTaxExemptionReasons(), [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-32]-VAT exemption reason text shall occur maximum once')
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-32')
             ]);
             if ('O' !== $taxCat->getId()->value) {
                 $context->getValidator()->inContext($context)->atPath('percent')->validate($taxCat->getPercent(), [

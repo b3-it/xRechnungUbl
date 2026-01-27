@@ -136,16 +136,23 @@ class Invoice
         protected array               $invoicePeriods = [],
         #[SerializedName("OrderReference")]
         protected ?OrderReferenceType $orderReference = null,
+        #[Assert\Valid]
         #[SerializedName("BillingReference")]
         protected array               $billingReferences = [],
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-03')]
         #[SerializedName("DespatchDocumentReference")]
         protected array               $despatchDocumentReferences = [],
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-02')]
         #[SerializedName("ReceiptDocumentReference")]
         protected array               $receiptDocumentReferences = [],
         #[SerializedName("StatementDocumentReference")]
         protected array               $statementDocumentReferences = [],
         #[SerializedName("OriginatorDocumentReference")]
         protected array               $originatorDocumentReferences = [],
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-01')]
         #[SerializedName("ContractDocumentReference")]
         protected array               $contractDocumentReferences = [],
         #[SerializedName("AdditionalDocumentReference")]
@@ -185,6 +192,8 @@ class Invoice
         ])]
         #[SerializedName("TaxRepresentativeParty")]
         protected ?PartyType          $taxRepresentativeParty = null,
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-24')]
         #[SerializedName("Delivery")]
         protected array               $deliveries = [],
         #[SerializedName("DeliveryTerms")]
@@ -848,17 +857,34 @@ class Invoice
             new Assert\Currency(message: '[BR-CL-05]-Tax currency code MUST be coded using ISO code list 4217 alpha-3')
         ]);
 
+        $context->getValidator()->inContext($context)->validate($this->getInvoicePeriods(), [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-08')
+        ]);
+
+        $paymentTermsNotes = array_merge([], ...array_map(fn(PaymentTermsType $paymentTerms) => $paymentTerms->getNotes(), $this->getPaymentTerms()));
+        $context->getValidator()->inContext($context)->validate($paymentTermsNotes, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-05')
+        ]);
+
         if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
-            if (!(array_any(
-                    $supplierPartyParty->getPartyTaxSchemes(),
-                    fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()?->getId()?->value === 'VAT' && !is_null($partyTaxScheme->getCompanyID())
-                ) || array_any(
+            $companyIds = array_filter(array_map(
+                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+                $supplierPartyParty->getPartyTaxSchemes()
+            ));
+            $context->getValidator()->inContext($context)->validate($companyIds, [
+                new Assert\Count(max: 2, maxMessage: 'UBL-SR-42')
+            ]);
+            $vatCompanyIds = array_filter(array_map(
+                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+                array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
+            ));
+            $legalCompanyIds = array_filter(array_map(
+                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $supplierPartyParty->getPartyLegalEntities()
+            ));
+            if (!(!empty($vatCompanyIds) || array_any(
                     $supplierPartyParty->getPartyIdentifications(),
                     fn(PartyIdentificationType $partyIdentification) => !is_null($partyIdentification->id)
-                ) || array_any(
-                    $supplierPartyParty->getPartyLegalEntities(),
-                    fn(PartyLegalEntityType $partyLegalEntity) => !is_null($partyLegalEntity->getCompanyID())
-                ))) {
+                ) || !empty($legalCompanyIds))) {
                 $context->buildViolation(
                     '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.'
                 )
@@ -873,33 +899,32 @@ class Invoice
                 new Assert\Count(
                     min: 1, max: 1,
                     minMessage: '[BR-06]-An Invoice shall contain the Seller name (BT-27).',
-                    maxMessage: '[UBL-SR-09]-Seller name shall occur maximum once'
+                    maxMessage: 'UBL-SR-09'
                 ),
             ]);
             $context->getValidator()->inContext($context)->validate($supplierPartyParty->getPartyNames(), [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-10]-Seller trader name shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-10'),
             ]);
-            $legalCompanyIds = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $supplierPartyParty->getPartyLegalEntities()
-            ));
             $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-11]-Seller legal registration identifier shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-11'),
             ]);
 
-            $vatCompanyIds = array_map(
-                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
-            );
             $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-12]-Seller VAT identifier shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-12'),
             ]);
 
-            $notVatCompanyIds = array_map(
+            $notVatCompanyIds = array_filter(array_map(
                 fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
                 array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value !== 'VAT')
-            );
+            ));
             $context->getValidator()->inContext($context)->validate($notVatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-13]-Seller tax registration shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-13'),
+            ]);
+            $legalForms = array_filter(array_map(
+                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyLegalForm(), $supplierPartyParty->getPartyLegalEntities()
+            ));
+            $context->getValidator()->inContext($context)->validate($legalForms, [
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-14'),
             ]);
         }
 
@@ -912,7 +937,7 @@ class Invoice
                 new Assert\Count(
                     min: 1, max: 1,
                     minMessage: '[BR-07]-An Invoice shall contain the Buyer name (BT-44).',
-                    maxMessage: '[UBL-SR-15]-Buyer name shall occur maximum once'
+                    maxMessage: 'UBL-SR-15'
                 ),
             ]);
 
@@ -920,21 +945,21 @@ class Invoice
                 fn(PartyIdentificationType $identification) => $identification->id, $customerPartyParty->getPartyIdentifications()
             );
             $context->getValidator()->inContext($context)->validate($partyIdentifications, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-16]-Buyer identifier shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-16'),
             ]);
 
             $legalCompanyIds = array_filter(array_map(
                 fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $customerPartyParty->getPartyLegalEntities()
             ));
             $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-17]-Buyer legal registration identifier shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-17'),
             ]);
             $vatCompanyIds = array_map(
                 fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
                 array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
             );
             $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-18]-Buyer VAT identifier shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-18'),
             ]);
 
             $partyNames = array_map(
@@ -943,7 +968,7 @@ class Invoice
             );
 
             $context->getValidator()->inContext($context)->validate($partyNames, [
-                new Assert\Count(max: 1, maxMessage: '[UBL-SR-40]-Buyer trade name shall occur maximum once'),
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-40'),
             ]);
         }
 
@@ -953,8 +978,13 @@ class Invoice
                     min: 1,
                     max: 1,
                     minMessage: '[BR-18]-The Seller tax representative name (BT-62) shall be provided in the Invoice, if the Seller (BG-4) has a Seller tax representative party (BG-11)',
-                    maxMessage: '[UBL-SR-22]-Seller tax representative name shall occur maximum once, if the Seller has a tax representative'
+                    maxMessage: 'UBL-SR-22'
                 ),
+            ]);
+
+            $taxPartyCompanyIds = array_filter(array_map(fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID(), $taxParty->getPartyTaxSchemes()));
+            $context->getValidator()->inContext($context)->validate($taxPartyCompanyIds, [
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-23'),
             ]);
         }
 
@@ -1014,6 +1044,9 @@ class Invoice
                     '[BR-33]-Each Document level allowance (BG-20) shall have a Document level allowance reason (BT-97) or a Document level allowance reason code (BT-98).'
                 );
             }
+            $context->getValidator()->inContext($context)->validate($allowanceCharge->getAllowanceChargeReasons(), [
+                new Assert\Count(max: 1, maxMessage: $indi ? 'UBL-SR-31' : 'UBL-SR-30')
+            ]);
         }
 
         $this->validateByVatCategoryRule01Percent($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'S',

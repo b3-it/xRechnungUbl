@@ -67,7 +67,7 @@ class AddressType
         protected ?TextType $district = null,
         #[SerializedName("TimezoneOffset")]
         protected ?TextType $timezoneOffset = null,
-        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-51]-An address can only have one third line.')]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-51')]
         #[SerializedName('AddressLine')]
         protected array $addressLines = [],
         #[Assert\Valid]

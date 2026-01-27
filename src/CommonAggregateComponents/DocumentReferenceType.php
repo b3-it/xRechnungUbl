@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\CommonAggregateComponents;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
@@ -21,6 +22,7 @@ class DocumentReferenceType
      * @param TextType[] $documentDescriptions
      */
     public function __construct(
+        #[Assert\NotNull]
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
         #[SerializedName('CopyIndicator')]

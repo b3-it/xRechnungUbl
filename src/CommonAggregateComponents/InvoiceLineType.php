@@ -38,7 +38,7 @@ class InvoiceLineType
         protected ?IdentifierType $id = null,
         #[SerializedName('UUID')]
         protected ?IdentifierType $uuid = null,
-        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-34]-Invoice line note shall occur maximum once')]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-34')]
         #[SerializedName('Note')]
         protected array $notes = [],
         #[Assert\Sequentially(constraints: [
@@ -60,7 +60,7 @@ class InvoiceLineType
         protected ?CodeType $paymentPurposeCode = null,
         #[SerializedName('FreeOfChargeIndicator')]
         protected ?Indicator $freeOfChargeIndicator = null,
-        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-36]-Invoice line period shall occur maximum once')]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-36')]
         #[Assert\All([
             new Assert\Expression('value.getStartDate() or value.getEndDate()', message: '[BR-CO-20]-If Invoice line period (BG-26) is used, the Invoice line period start date (BT-134) or the Invoice line period end date (BT-135) shall be filled, or both.'),
             new Assert\When('value.getStartDate() and value.getEndDate()', [
@@ -77,7 +77,7 @@ class InvoiceLineType
         protected array $receiptLineReferences = [],
         #[SerializedName('BillingReference')]
         protected array $billingReferences = [],
-        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-52]-Document reference shall occur maximum once')]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-52')]
         #[SerializedName('DocumentReference')]
         protected array $documentReferences = [],
         #[SerializedName('PricingReference')]
@@ -105,6 +105,7 @@ class InvoiceLineType
             new Assert\Expression('value?.getPriceAmount()', message: '[BR-26]-Each Invoice line (BG-25) shall contain the Item net price (BT-146).'),
             new Assert\Expression('value?.getPriceAmount().value >= 0', message: '[BR-27]-The Item net price (BT-146) shall NOT be negative.')
         ])]
+        #[Assert\Valid]
         #[SerializedName('Price')]
         protected ?PriceType $price = null,
         #[SerializedName('DeliveryTerms')]
@@ -608,8 +609,13 @@ class InvoiceLineType
                     new Assert\Expression('value.getId()?.schemeID', message: '[BR-64]-The Item standard identifier (BT-157) shall have a Scheme identifier.')
                 ]);
             }
+
+            $context->getValidator()->inContext($context)->validate($item->getDescriptions(), [
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-50')
+            ]);
+
             $context->getValidator()->inContext($context)->validate($item->getClassifiedTaxCategories(), [
-                new Assert\Count(exactly: 1, exactMessage: '[UBL-SR-48]-Invoice lines shall have one and only one classified tax category.'),
+                new Assert\Count(exactly: 1, exactMessage: 'UBL-SR-48'),
                 new Assert\All([
                     new Assert\When("value?.getTaxScheme()?.getId()?.value == 'VAT'", [
                         new Assert\Expression('value.getId()', '[BR-CO-04]-Each Invoice line (BG-25) shall be categorized with an Invoiced item VAT category code (BT-151).')
@@ -696,6 +702,19 @@ class InvoiceLineType
                     new Assert\Count(exactly: 1, exactMessage: '[BR-DEX-03] Eine Sub Invoice Line (BG-DEX-01) muss genau eine "SUB INVOICE LINE VAT INFORMATION" (BG-DEX-06) enthalten.')
                 ]);
             }
+        }
+
+        $orderLineReferenceIds = array_filter(array_map(
+            fn(OrderLineReferenceType $orderLineReference) => $orderLineReference->getLineID(),
+            $this->getOrderLineReferences()));
+        $context->getValidator()->inContext($context)->validate($orderLineReferenceIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-35')
+        ]);
+
+        if ($price = $this->getPrice()) {
+            $context->getValidator()->inContext($context)->validate($price->getAllowanceCharges(), [
+                new Assert\Count(max: 1, maxMessage: 'UBL-SR-37')
+            ]);
         }
     }
 }

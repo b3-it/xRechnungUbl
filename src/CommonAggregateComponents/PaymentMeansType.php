@@ -42,7 +42,7 @@ class PaymentMeansType
         /**
          * @var IdentifierType[]
          */
-        #[Assert\Count(max: 1, maxMessage: '[UBL-SR-26]-Payment reference shall occur maximum once')]
+        #[Assert\Count(max: 1, maxMessage: 'UBL-SR-26')]
         #[SerializedName('PaymentID')]
         protected array $paymentIDs = [],
 

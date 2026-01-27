@@ -20,7 +20,7 @@ class PartyTaxSchemeType
     public function __construct(
         #[SerializedName('RegistrationName')]
         protected ?NameType $registrationName = null,
-        #[Assert\NotNull(message: '[UBL-SR-53]- CompanyID (VAT Identifier) must be stated when providing the PartyTaxScheme/TaxScheme/ID.')]
+        #[Assert\NotNull(message: 'UBL-SR-53')]
         #[SerializedName('CompanyID')]
         protected ?IdentifierType $companyID = null,
         #[SerializedName('TaxLevelCode')]
@@ -31,7 +31,7 @@ class PartyTaxSchemeType
         protected array $exemptionReasons = [],
         #[SerializedName('RegistrationAddress')]
         protected ?AddressType $registrationAddress = null,
-        #[Assert\NotNull(message: '[UBL-SR-53]- CompanyID (VAT Identifier) must be stated when providing the PartyTaxScheme/TaxScheme/ID.')]
+        #[Assert\NotNull(message: 'UBL-SR-53')]
         #[SerializedName('TaxScheme')]
         protected ?TaxSchemeType $taxScheme = null
     )
