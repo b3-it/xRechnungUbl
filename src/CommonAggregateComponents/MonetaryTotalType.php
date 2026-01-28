@@ -10,13 +10,13 @@ use UBL\UnqualifiedDataTypes\AmountType;
 class MonetaryTotalType
 {
     public function __construct(
-        #[Assert\NotNull(message: '[BR-12]-An Invoice shall have the Sum of Invoice line net amount (BT-106).')]
+        #[Assert\NotNull(message: 'BR-12')]
         #[SerializedName('LineExtensionAmount')]
         protected ?AmountType $lineExtensionAmount = null,
-        #[Assert\NotNull(message: '[BR-13]-An Invoice shall have the Invoice total amount without VAT (BT-109).')]
+        #[Assert\NotNull(message: 'BR-13')]
         #[SerializedName('TaxExclusiveAmount')]
         protected ?AmountType $taxExclusiveAmount = null,
-        #[Assert\NotNull(message: '[BR-14]-An Invoice shall have the Invoice total amount with VAT (BT-112).')]
+        #[Assert\NotNull(message: 'BR-14')]
         #[SerializedName('TaxInclusiveAmount')]
         protected ?AmountType $taxInclusiveAmount = null,
         #[SerializedName('AllowanceTotalAmount')]
@@ -27,7 +27,7 @@ class MonetaryTotalType
         protected ?AmountType $prepaidAmount = null,
         #[SerializedName('PayableRoundingAmount')]
         protected ?AmountType $payableRoundingAmount = null,
-        #[Assert\NotNull(message: '[BR-15]-An Invoice shall have the Amount due for payment (BT-115).')]
+        #[Assert\NotNull(message: 'BR-15')]
         #[SerializedName('PayableAmount')]
         protected ?AmountType $payableAmount = null,
         #[SerializedName('PayableAlternativeAmount')]

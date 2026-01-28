@@ -5,6 +5,7 @@ namespace UBL\CommonAggregateComponents;
 
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use UBL\UnqualifiedDataTypes\AmountType;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
@@ -42,6 +43,7 @@ class AllowanceChargeType
         protected ?CodeType $accountingCostCode = null,
         #[SerializedName('AccountingCost')]
         protected ?TextType $accountingCost = null,
+        #[Assert\Valid]
         #[SerializedName('TaxCategory')]
         protected array $taxCategories = [],
         #[SerializedName('TaxTotal')]

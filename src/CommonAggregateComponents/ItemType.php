@@ -76,6 +76,7 @@ class ItemType
         protected ?DocumentReferenceType $catalogueDocumentReference = null,
         #[SerializedName('ItemSpecificationDocumentReference')]
         protected array $itemSpecificationDocumentReferences = [],
+        #[Assert\Valid]
         #[SerializedName('OriginCountry')]
         protected ?CountryType $originCountry = null,
         #[SerializedName('CommodityClassification')]

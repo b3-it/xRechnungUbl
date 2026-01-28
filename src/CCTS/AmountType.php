@@ -14,7 +14,7 @@ class AmountType implements NormalizableInterface
     public function __construct(
         #[SerializedName('#')]
         public float $value,
-        #[Assert\Currency]
+        #[Assert\Currency(message: 'BR-CL-03')]
         #[SerializedName('@currencyID')]
         public ?string $currencyID = null,
         #[SerializedName('@currencyCodeListVersionID')]

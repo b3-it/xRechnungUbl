@@ -34,6 +34,7 @@ use UBL\CommonAggregateComponents\TaxSubtotalType;
 use UBL\CommonAggregateComponents\TaxTotalType;
 
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use UBL\Peppol\TaxCategoryCode;
 use UBL\UnqualifiedDataTypes\CodeType;
 use UBL\UnqualifiedDataTypes\IdentifierType;
 use UBL\UnqualifiedDataTypes\Indicator;
@@ -81,21 +82,21 @@ class Invoice
 
         #[SerializedName("UBLVersionID")]
         protected ?IdentifierType     $uBLVersionID = null,
-        #[Assert\NotNull(message: '[BR-01]-An Invoice shall have a Specification identifier (BT-24).')]
+        #[Assert\NotNull(message: 'BR-01')]
         #[SerializedName("CustomizationID")]
         protected ?IdentifierType     $customizationID = null,
         #[SerializedName("ProfileID")]
         protected ?IdentifierType     $profileID = null,
         #[SerializedName("ProfileExecutionID")]
         protected ?IdentifierType     $profileExecutionID = null,
-        #[Assert\NotNull(message: '[BR-02]-An Invoice shall have an Invoice number (BT-1).')]
+        #[Assert\NotNull(message: 'BR-02')]
         #[SerializedName("ID")]
         protected ?IdentifierType     $id = null,
         #[SerializedName("CopyIndicator")]
         protected ?Indicator          $copyIndicator = null,
         #[SerializedName("UUID")]
         protected ?IdentifierType     $uUID = null,
-        #[Assert\NotNull(message: '[BR-03]-An Invoice shall have an Invoice issue date (BT-2).')]
+        #[Assert\NotNull(message: 'BR-03')]
         #[SerializedName("IssueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface  $issueDate = null,
@@ -105,7 +106,7 @@ class Invoice
         #[SerializedName("DueDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface  $dueDate = null,
-        #[Assert\NotNull(message: '[BR-04]-An Invoice shall have an Invoice type code (BT-3).')]
+        #[Assert\NotNull(message: 'BR-04')]
         #[SerializedName("InvoiceTypeCode")]
         protected ?CodeType           $invoiceTypeCode = null,
         #[SerializedName("Note")]
@@ -113,7 +114,7 @@ class Invoice
         #[SerializedName("TaxPointDate")]
         #[Context([DateTimeNormalizer::FORMAT_KEY => CommonAggregateComponents::DATE_FORMAT])]
         protected ?DateTimeInterface  $taxPointDate = null,
-        #[Assert\NotNull(message: '[BR-05]-An Invoice shall have an Invoice currency code (BT-5).')]
+        #[Assert\NotNull(message: 'BR-05')]
         #[SerializedName("DocumentCurrencyCode")]
         protected ?CodeType           $documentCurrencyCode = null,
         #[SerializedName("TaxCurrencyCode")]
@@ -165,8 +166,8 @@ class Invoice
         protected array               $signatures = [],
         #[Assert\Valid]
         #[Assert\Sequentially([
-            new Assert\Expression('value?.getParty()?.getPostalAddress()', message: '[BR-08]-An Invoice shall contain the Seller postal address.'),
-            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-09]-The Seller postal address (BG-5) shall contain a Seller country code (BT-40).'),
+            new Assert\Expression('value?.getParty()?.getPostalAddress()', message: 'BR-08'),
+            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: 'BR-09'),
             new Assert\Expression('value.getParty().getEndpointID()', 'Seller electronic address MUST be provided'),
             new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'),
         ])]
@@ -174,9 +175,9 @@ class Invoice
         protected ?SupplierPartyType  $accountingSupplierParty = null,
         #[Assert\Valid]
         #[Assert\Sequentially([
-            new Assert\Expression('value?.getParty()?.getPostalAddress()', '[BR-10]-An Invoice shall contain the Buyer postal address (BG-8).'),
-            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', '[BR-11]-The Buyer postal address shall contain a Buyer country code (BT-55).'),
-            new Assert\Expression('value.getParty().getEndpointID()', 'Buyer electronic address MUST be provided'),
+            new Assert\Expression('value?.getParty()?.getPostalAddress()', 'BR-10'),
+            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', 'BR-11'),
+            new Assert\Expression('value.getParty().getEndpointID()', 'PEPPOL-EN16931-R010'),
             new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-63]-The Buyer electronic address (BT-49) shall have a Scheme identifier.'),
         ])]
         #[SerializedName("AccountingCustomerParty")]
@@ -190,7 +191,7 @@ class Invoice
         protected ?SupplierPartyType  $sellerSupplierParty = null,
         #[Assert\Valid]
         #[Assert\When('value', [
-            new Assert\Expression('value.getPostalAddress()?.getCountry()?.identificationCode', message: '[BR-20]-The Seller tax representative postal address (BG-12) shall contain a Tax representative country code (BT-69), if the Seller (BG-4) has a Seller tax representative party (BG-11).'),
+            new Assert\Expression('value.getPostalAddress()?.getCountry()?.identificationCode', message: 'BR-20'),
         ])]
         #[SerializedName("TaxRepresentativeParty")]
         protected ?PartyType          $taxRepresentativeParty = null,
@@ -208,6 +209,9 @@ class Invoice
         #[SerializedName("PrepaidPayment")]
         protected array               $prepaidPayments = [],
         #[Assert\Valid]
+        #[Assert\All(
+            new Assert\Callback([self::class, 'validateAllowanceCharge'])
+        )]
         #[SerializedName("AllowanceCharge")]
         protected array               $allowanceCharges = [],
         #[SerializedName("TaxExchangeRate")]
@@ -229,8 +233,7 @@ class Invoice
         #[SerializedName("LegalMonetaryTotal")]
         protected ?MonetaryTotalType  $legalMonetaryTotal = null,
         #[Assert\Count(
-            min: 1,
-            minMessage: "[BR-16]-An Invoice shall have at least one Invoice line (BG-25)"
+            min: 1, minMessage: 'BR-16'
         )]
         #[Assert\Valid]
         #[SerializedName("InvoiceLine")]
@@ -853,10 +856,10 @@ class Invoice
     public function validate(ExecutionContextInterface $context): void
     {
         $context->getValidator()->inContext($context)->validate($this->getDocumentCurrencyCode()?->value, [
-            new Assert\Currency(message: '[BR-CL-04]-Invoice currency code MUST be coded using ISO code list 4217 alpha-3')
+            new Assert\Currency(message: 'BR-CL-04')
         ]);
         $context->getValidator()->inContext($context)->validate($this->getTaxCurrencyCode()?->value, [
-            new Assert\Currency(message: '[BR-CL-05]-Tax currency code MUST be coded using ISO code list 4217 alpha-3')
+            new Assert\Currency(message: 'BR-CL-05')
         ]);
 
         $invoicePeriodDescriptionCodes = array_merge([], ...array_map(
@@ -919,7 +922,7 @@ class Invoice
             $context->getValidator()->inContext($context)->validate($registrationNames, [
                 new Assert\Count(
                     min: 1, max: 1,
-                    minMessage: '[BR-06]-An Invoice shall contain the Seller name (BT-27).',
+                    minMessage: 'BR-06',
                     maxMessage: 'UBL-SR-09'
                 ),
             ]);
@@ -957,7 +960,7 @@ class Invoice
             $context->getValidator()->inContext($context)->validate($registrationNames, [
                 new Assert\Count(
                     min: 1, max: 1,
-                    minMessage: '[BR-07]-An Invoice shall contain the Buyer name (BT-44).',
+                    minMessage: 'BR-07',
                     maxMessage: 'UBL-SR-15'
                 ),
             ]);
@@ -977,7 +980,7 @@ class Invoice
             ]);
             $vatCompanyIds = array_map(
                 fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
+                array_filter($customerPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
             );
             $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
                 new Assert\Count(max: 1, maxMessage: 'UBL-SR-18'),
@@ -998,9 +1001,12 @@ class Invoice
                 new Assert\Count(
                     min: 1,
                     max: 1,
-                    minMessage: '[BR-18]-The Seller tax representative name (BT-62) shall be provided in the Invoice, if the Seller (BG-4) has a Seller tax representative party (BG-11)',
+                    minMessage: 'BR-18',
                     maxMessage: 'UBL-SR-22'
                 ),
+            ]);
+            $context->getValidator()->inContext($context)->validate($taxParty->getPostalAddress(), [
+                new Assert\NotNull(message: 'BR-19')
             ]);
 
             $taxPartyCompanyIds = array_filter(array_map(fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID(), $taxParty->getPartyTaxSchemes()));
@@ -1014,7 +1020,7 @@ class Invoice
             $hasTaxSchemeParty = array_any($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID());
         }
         if (!$hasTaxSchemeParty && $taxParty) {
-            $hasTaxSchemeParty = array_any($taxParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId() === 'VAT' && $partyTaxScheme->getCompanyID());
+            $hasTaxSchemeParty = array_any($taxParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId()->value === 'VAT' && $partyTaxScheme->getCompanyID());
         }
 
         /**
@@ -1044,30 +1050,6 @@ class Invoice
         $allowanceTaxCategories = [];
         foreach ($this->getAllowanceCharges() as $allowanceCharge) {
             array_push($allowanceTaxCategories, ...$allowanceCharge->getTaxCategories());
-
-            $indi = $allowanceCharge->getChargeIndicator() === Indicator::TRUE;
-            $context->getValidator()->inContext($context)->validate($allowanceCharge->getAmount(), [
-                new Assert\NotNull(message: $indi ?
-                    '[BR-36]-Each Document level charge (BG-21) shall have a Document level charge amount (BT-99).' :
-                    '[BR-31]-Each Document level allowance (BG-20) shall have a Document level allowance amount (BT-92).')
-            ]);
-
-            $anyTaxVat = array_any($allowanceCharge->getTaxCategories(), fn(TaxCategoryType $taxCategory) => $taxCategory->getTaxScheme()->getId() === 'VAT' && $taxCategory->getId());
-            if (!$anyTaxVat) {
-                $context->addViolation($indi ?
-                    '[BR-37]-Each Document level charge (BG-21) shall have a Document level charge VAT category code (BT-102).' :
-                    '[BR-32]-Each Document level allowance (BG-20) shall have a Document level allowance VAT category code (BT-95).'
-                );
-            }
-            if (!$allowanceCharge->getAllowanceChargeReasonCode() && empty($allowanceCharge->getAllowanceChargeReasons())) {
-                $context->addViolation($indi ?
-                    '[BR-38]-Each Document level charge (BG-21) shall have a Document level charge reason (BT-104) or a Document level charge reason code (BT-105).' :
-                    '[BR-33]-Each Document level allowance (BG-20) shall have a Document level allowance reason (BT-97) or a Document level allowance reason code (BT-98).'
-                );
-            }
-            $context->getValidator()->inContext($context)->validate($allowanceCharge->getAllowanceChargeReasons(), [
-                new Assert\Count(max: 1, maxMessage: $indi ? 'UBL-SR-31' : 'UBL-SR-30')
-            ]);
         }
 
         $this->validateByVatCategoryRule01Percent($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'S',
@@ -1080,10 +1062,6 @@ class Invoice
                 rule04: 'BR-S-04'
             );
         }
-        $this->validateVatCategoryAllowancePercent($context, 'value > 0', 'S',
-            'BR-S-06',
-            'BR-S-07'
-        );
         $this->checkTaxableAmountWithPercent($taxSubTotals, $context, 'S', 'BR-S-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'E',
@@ -1095,10 +1073,6 @@ class Invoice
                 rule03: 'BR-E-03',
                 rule04: 'BR-E-04');
         }
-        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'E',
-            'BR-E-06',
-            'BR-E-07'
-        );
         $this->checkTaxableAmount($taxSubTotals, $context, 'Z', 'BR-E-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'AE',
@@ -1110,10 +1084,6 @@ class Invoice
                 rule03: 'BR-AE-03',
                 rule04: 'BR-AE-04');
         }
-        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'AE',
-            'BR-AE-06',
-            'BR-AE-07'
-        );
         $this->checkTaxableAmount($taxSubTotals, $context, 'AE', 'BR-AE-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'G',
@@ -1125,10 +1095,6 @@ class Invoice
                 rule03: 'BR-G-03',
                 rule04: 'BR-G-04');
         }
-        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'G',
-            'BR-G-06',
-            'BR-G-07'
-        );
         $this->checkTaxableAmount($taxSubTotals, $context, 'G', 'BR-G-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'Z',
@@ -1140,10 +1106,6 @@ class Invoice
                 rule03: 'BR-Z-03',
                 rule04: 'BR-Z-04');
         }
-        $this->validateVatCategoryAllowancePercent($context, 'value = 0', 'Z',
-            'BR-Z-06',
-            'BR-Z-07'
-        );
         $this->checkTaxableAmount($taxSubTotals, $context, 'Z', 'BR-Z-08');
     }
 
@@ -1300,5 +1262,91 @@ class Invoice
             }
         }
         return $sum;
+    }
+
+    public static function validateAllowanceCharge(AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void
+    {
+        $indi = $allowanceCharge->getChargeIndicator() === Indicator::TRUE;
+        $context->getValidator()->inContext($context)->atPath('amount')->validate($allowanceCharge->getAmount(), [
+            new Assert\NotNull(message: $indi ? 'BR-36' : 'BR-31')
+        ]);
+
+        $anyTaxVat = array_any($allowanceCharge->getTaxCategories(),
+            fn(TaxCategoryType $taxCategory) => $taxCategory->getTaxScheme()?->getId()?->value === 'VAT' && $taxCategory->getId()
+        );
+        if (!$anyTaxVat) {
+            $context->buildViolation($indi ? 'BR-37' : 'BR-32')->atPath('taxCategories')->addViolation();
+        }
+        $context->getValidator()->inContext($context)->atPath('taxCategories')->validate($allowanceCharge->getTaxCategories(), [
+            new Assert\All([
+                new Assert\Callback(Invoice::validateAllowanceChargeTaxCategory(...), payload: $allowanceCharge),
+            ])
+        ]);
+        if (!$allowanceCharge->getAllowanceChargeReasonCode() && empty($allowanceCharge->getAllowanceChargeReasons())) {
+            $context->buildViolation($indi ? 'BR-38' : 'BR-33')->atPath('allowanceChargeReasonCode')->addViolation();
+        }
+        $context->getValidator()->inContext($context)->atPath('allowanceChargeReasons')->validate($allowanceCharge->getAllowanceChargeReasons(), [
+            new Assert\Count(max: 1, maxMessage: $indi ? 'UBL-SR-31' : 'UBL-SR-30')
+        ]);
+    }
+    public static function validateAllowanceChargeTaxCategory(TaxCategoryType $taxCategory, ExecutionContextInterface $context, AllowanceChargeType $payload): void
+    {
+        if ($taxCategory->getTaxScheme()?->getId()?->value !== 'VAT') {
+            return;
+        }
+        $percentContext = $context->getValidator()->inContext($context)->atPath('percent');
+
+        $indi = $payload->getChargeIndicator() == Indicator::TRUE;
+        switch (TaxCategoryCode::tryFrom($taxCategory->getId()->value)) {
+            case TaxCategoryCode::S:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\Positive(message: $indi ? 'BR-S-07' : 'BR-S-06')
+                ]);
+                break;
+            case TaxCategoryCode::AE:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\EqualTo(0, message: $indi ? 'BR-AE-07' : 'BR-AE-06')
+                ]);
+                break;
+            case TaxCategoryCode::E:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\EqualTo(0, message: $indi ? 'BR-E-07' : 'BR-E-06')
+                ]);
+                break;
+            case TaxCategoryCode::Z:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\EqualTo(0, message: $indi ? 'BR-Z-07' : 'BR-Z-06')
+                ]);
+                break;
+            case TaxCategoryCode::G:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\EqualTo(0, message: $indi ? 'BR-G-07' : 'BR-G-06')
+                ]);
+                break;
+            case TaxCategoryCode::O:
+                $percentContext->validate($taxCategory->getPercent(), [
+                    new Assert\IsNull(message: $indi ? 'BR-O-07' : 'BR-O-06')
+                ]);
+                break;
+            case TaxCategoryCode::K:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\EqualTo(0, message: $indi ? 'BR-IC-07' : 'BR-IC-06')
+                ]);
+                break;
+            case TaxCategoryCode::L:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\PositiveOrZero(message: $indi ? 'BR-AF-07' : 'BR-AF-06')
+                ]);
+                break;
+            case TaxCategoryCode::M:
+                $percentContext->validate($taxCategory->getPercent()?->value, [
+                    new Assert\PositiveOrZero(message: $indi ? 'BR-AG-07' : 'BR-AG-06')
+                ]);
+                break;
+            case TaxCategoryCode::B:
+                break;
+            default:
+                $context->buildViolation('BR-CL-17')->atPath('id')->addViolation();
+        }
     }
 }

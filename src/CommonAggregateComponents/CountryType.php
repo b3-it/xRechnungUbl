@@ -25,7 +25,7 @@ class CountryType
     public function validate(ExecutionContextInterface $context): void
     {
         $context->getValidator()->inContext($context)->validate($this->identificationCode?->value, [
-            new Assert\Country
+            new Assert\Country(message: str_ends_with($context->getPropertyPath(), 'originCountry') ? 'BR-CL-15' : 'BR-CL-14')
         ]);
     }
 }

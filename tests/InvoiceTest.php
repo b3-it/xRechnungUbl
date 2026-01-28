@@ -3,7 +3,6 @@
 namespace UBL\Tests;
 
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use UBL\CommonAggregateComponents\MonetaryTotalType;
 use UBL\UnqualifiedDataTypes\AmountType;
