@@ -52,7 +52,7 @@ class PaymentMeansType
         protected ?FinancialAccountType $payerFinancialAccount = null,
         #[Assert\When(
             'this.getPaymentMeansCode().value == 30 or this.getPaymentMeansCode().value == 36', [
-                new Assert\NotNull( message: '[BR-61]-If the Payment means type code (BT-81) means SEPA credit transfer, Local credit transfer or Non-SEPA international credit transfer, the Payment account identifier (BT-84) shall be present.')
+                new Assert\NotNull( message: 'BR-61')
             ]
         )]
         #[SerializedName('PayeeFinancialAccount')]

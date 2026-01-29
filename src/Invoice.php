@@ -7,6 +7,7 @@ use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use UBL\CommonAggregateComponents\AddressType;
 use UBL\CommonAggregateComponents\AllowanceChargeType;
 use UBL\CommonAggregateComponents\BillingReferenceType;
 use UBL\CommonAggregateComponents\CustomerPartyType;
@@ -165,12 +166,7 @@ class Invoice
         #[SerializedName("Signature")]
         protected array               $signatures = [],
         #[Assert\Valid]
-        #[Assert\Sequentially([
-            new Assert\Expression('value?.getParty()?.getPostalAddress()', message: 'BR-08'),
-            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', message: 'BR-09'),
-            new Assert\Expression('value.getParty().getEndpointID()', 'Seller electronic address MUST be provided'),
-            new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.'),
-        ])]
+        #[Assert\Callback([self::class, 'validateAccountingSupplierParty'])]
         #[SerializedName("AccountingSupplierParty")]
         protected ?SupplierPartyType  $accountingSupplierParty = null,
         #[Assert\Valid]
@@ -178,7 +174,7 @@ class Invoice
             new Assert\Expression('value?.getParty()?.getPostalAddress()', 'BR-10'),
             new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', 'BR-11'),
             new Assert\Expression('value.getParty().getEndpointID()', 'PEPPOL-EN16931-R010'),
-            new Assert\Expression('value.getParty().getEndpointID().schemeID', '[BR-63]-The Buyer electronic address (BT-49) shall have a Scheme identifier.'),
+            new Assert\Expression('value.getParty().getEndpointID().schemeID', 'BR-63'),
         ])]
         #[SerializedName("AccountingCustomerParty")]
         protected ?CustomerPartyType  $accountingCustomerParty = null,
@@ -891,68 +887,6 @@ class Invoice
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-05')
         ]);
 
-        if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
-            $companyIds = array_filter(array_map(
-                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                $supplierPartyParty->getPartyTaxSchemes()
-            ));
-            $context->getValidator()->inContext($context)->validate($companyIds, [
-                new Assert\Count(max: 2, maxMessage: 'UBL-SR-42')
-            ]);
-            $vatCompanyIds = array_filter(array_map(
-                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
-            ));
-            $legalCompanyIds = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $supplierPartyParty->getPartyLegalEntities()
-            ));
-            if (!(!empty($vatCompanyIds) || array_any(
-                    $supplierPartyParty->getPartyIdentifications(),
-                    fn(PartyIdentificationType $partyIdentification) => !is_null($partyIdentification->id)
-                ) || !empty($legalCompanyIds))) {
-                $context->buildViolation(
-                    '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.'
-                )
-                    ->setCode('BR-CO-26')
-                    ->atPath('accounting_supplier_party.party')
-                    ->addViolation();
-            }
-            $registrationNames = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $supplierPartyParty->getPartyLegalEntities()
-            ));
-            $context->getValidator()->inContext($context)->validate($registrationNames, [
-                new Assert\Count(
-                    min: 1, max: 1,
-                    minMessage: 'BR-06',
-                    maxMessage: 'UBL-SR-09'
-                ),
-            ]);
-            $context->getValidator()->inContext($context)->validate($supplierPartyParty->getPartyNames(), [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-10'),
-            ]);
-            $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-11'),
-            ]);
-
-            $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-12'),
-            ]);
-
-            $notVatCompanyIds = array_filter(array_map(
-                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                array_filter($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value !== 'VAT')
-            ));
-            $context->getValidator()->inContext($context)->validate($notVatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-13'),
-            ]);
-            $legalForms = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyLegalForm(), $supplierPartyParty->getPartyLegalEntities()
-            ));
-            $context->getValidator()->inContext($context)->validate($legalForms, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-14'),
-            ]);
-        }
-
         if ($customerPartyParty = $this->getAccountingCustomerParty()?->getParty()) {
             $registrationNames = array_filter(array_map(
                 fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $customerPartyParty->getPartyLegalEntities()
@@ -1017,7 +951,7 @@ class Invoice
         }
 
         $hasTaxSchemeParty = false;
-        if ($supplierPartyParty) {
+        if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
             $hasTaxSchemeParty = array_any($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID());
         }
         if (!$hasTaxSchemeParty && $taxParty) {
@@ -1034,7 +968,7 @@ class Invoice
         $context->getValidator()->inContext($context)->validate($taxSubTotals, [
             new Assert\Count(
                 min: 1,
-                minMessage: '[BR-CO-18]-An Invoice shall at least have one VAT breakdown group (BG-23).'
+                minMessage: 'BR-CO-18'
             )
         ]);
         $classifiedTaxCategories = [];
@@ -1153,20 +1087,6 @@ class Invoice
         }
     }
 
-    protected function validateVatCategoryAllowancePercent(ExecutionContextInterface $context, string $expr, string $vatId, string $rule06, string $rule07): void
-    {
-        foreach ($this->getAllowanceCharges() as $allowanceCharge) {
-            foreach ($allowanceCharge->getTaxCategories() as $taxCategory) {
-                if ($taxCategory->getId()?->value !== $vatId) {
-                    continue;
-                }
-                $context->getValidator()->inContext($context)->validate($taxCategory->getPercent()?->value, [
-                    new Assert\Expression($expr, message: $allowanceCharge->getChargeIndicator() === Indicator::TRUE ? $rule07 : $rule06),
-                ]);
-            }
-        }
-    }
-
     /**
      * @param TaxSubtotalType[] $taxSubTotals
      */
@@ -1263,6 +1183,94 @@ class Invoice
             }
         }
         return $sum;
+    }
+
+    public static function validateAccountingSupplierParty(?SupplierPartyType $supplierParty, ExecutionContextInterface $context): void
+    {
+        $context->getValidator()->inContext($context)->atPath('party')->validate($supplierParty?->getParty(), [
+            new Assert\Callback(self::validateAccountingSupplierPartyParty(...))
+        ]);
+    }
+
+    public static function validateAccountingSupplierPartyParty(?PartyType $party, ExecutionContextInterface $context): void
+    {
+        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
+            new Assert\NotNull(message: 'PEPPOL-EN16931-R020')
+        ]);
+        if (is_null($party)) {
+            return;
+        }
+        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
+            new Assert\NotNull(message: 'BR-62')
+        ]);
+
+        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party->getPostalAddress(), new Assert\Sequentially([
+            new Assert\NotNull(message: 'BR-08'),
+            new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
+                $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
+                    new Assert\NotNull(message: 'BR-09'),
+                ])
+            )
+        ]));
+
+        $companyIds = array_filter(array_map(
+            fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+            $party->getPartyTaxSchemes()
+        ));
+        $context->getValidator()->inContext($context)->validate($companyIds, [
+            new Assert\Count(max: 2, maxMessage: 'UBL-SR-42')
+        ]);
+        $vatCompanyIds = array_filter(array_map(
+            fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+            array_filter($party->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
+        ));
+        $legalCompanyIds = array_filter(array_map(
+            fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $party->getPartyLegalEntities()
+        ));
+        if (!(!empty($vatCompanyIds) || array_any(
+                $party->getPartyIdentifications(),
+                fn(PartyIdentificationType $partyIdentification) => !is_null($partyIdentification->id)
+            ) || !empty($legalCompanyIds))) {
+            $context->buildViolation(
+                'BR-CO-26'
+            )
+                ->setCode('BR-CO-26')
+                ->addViolation();
+        }
+        $registrationNames = array_filter(array_map(
+            fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $party->getPartyLegalEntities()
+        ));
+        $context->getValidator()->inContext($context)->validate($registrationNames, [
+            new Assert\Count(
+                min: 1, max: 1,
+                minMessage: 'BR-06',
+                maxMessage: 'UBL-SR-09'
+            ),
+        ]);
+        $context->getValidator()->inContext($context)->validate($party->getPartyNames(), [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-10'),
+        ]);
+        $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-11'),
+        ]);
+
+        $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-12'),
+        ]);
+
+        $notVatCompanyIds = array_filter(array_map(
+            fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+            array_filter($party->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value !== 'VAT')
+        ));
+        $context->getValidator()->inContext($context)->validate($notVatCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-13'),
+        ]);
+        $legalForms = array_filter(array_map(
+            fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyLegalForm(), $party->getPartyLegalEntities()
+        ));
+        $context->getValidator()->inContext($context)->validate($legalForms, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-14'),
+        ]);
     }
 
     public static function validateAllowanceCharge(AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void

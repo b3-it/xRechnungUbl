@@ -62,7 +62,7 @@ class InvoiceLineType
         protected ?Indicator $freeOfChargeIndicator = null,
         #[Assert\Count(max: 1, maxMessage: 'UBL-SR-36')]
         #[Assert\All([
-            new Assert\Expression('value.getStartDate() or value.getEndDate()', message: '[BR-CO-20]-If Invoice line period (BG-26) is used, the Invoice line period start date (BT-134) or the Invoice line period end date (BT-135) shall be filled, or both.'),
+            new Assert\Expression('value.getStartDate() or value.getEndDate()', message: 'BR-CO-20'),
             new Assert\When('value.getStartDate() and value.getEndDate()', [
                 new Assert\Expression('value.getEndDate() >= value.getStartDate()', message: 'BR-30')
             ]),
@@ -618,16 +618,17 @@ class InvoiceLineType
         if (is_null($item)) {
             return;
         }
-        foreach ($item->getCommodityClassifications() as $commodityClassification) {
-            $context->getValidator()->inContext($context)->validate($commodityClassification, [
+
+        $context->getValidator()->inContext($context)->atPath('commodityClassifications')->validate(
+            $item->getCommodityClassifications(), new Assert\All([
                 new Assert\When('value.getItemClassificationCode()', [
-                    new Assert\Expression('value.getItemClassificationCode().listID', message: '[BR-65]-The Item classification identifier (BT-158) shall have a Scheme identifier.')
+                    new Assert\Expression('value.getItemClassificationCode().listID', message: 'BR-65')
                 ])
-            ]);
-        }
+            ])
+        );
         if ($standard = $item->getStandardItemIdentification()) {
             $context->getValidator()->inContext($context)->atPath('standardItemIdentification')->validate($standard, [
-                new Assert\Expression('value.getId()?.schemeID', message: '[BR-64]-The Item standard identifier (BT-157) shall have a Scheme identifier.')
+                new Assert\Expression('value.getId()?.schemeID', message: 'BR-64')
             ]);
         }
 
@@ -639,7 +640,7 @@ class InvoiceLineType
             new Assert\Count(exactly: 1, exactMessage: 'UBL-SR-48'),
             new Assert\All([
                 new Assert\When("value?.getTaxScheme()?.getId()?.value == 'VAT'", [
-                    new Assert\Expression('value.getId()', '[BR-CO-04]-Each Invoice line (BG-25) shall be categorized with an Invoiced item VAT category code (BT-151).')
+                    new Assert\Expression('value.getId()', 'BR-CO-04')
                 ]),
                 new Assert\Callback(InvoiceLineType::validateTaxCategory(...))
             ])

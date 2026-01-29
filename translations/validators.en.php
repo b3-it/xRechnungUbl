@@ -50,6 +50,26 @@ return [
     'BR-47' => '[BR-47]-Each VAT breakdown (BG-23) shall be defined through a VAT category code (BT-118).',
     'BR-48' => '[BR-48]-Each VAT breakdown (BG-23) shall have a VAT category rate (BT-119), except if the Invoice is not subject to VAT.',
     'BR-49' => '[BR-49]-A Payment instruction (BG-16) shall specify the Payment means type code (BT-81).',
+    'BR-50' => '[BR-50]-A Payment account identifier (BT-84) shall be present if Credit transfer (BG-17) information is provided in the Invoice.',
+    'BR-51' => '[BR-51]-In accordance with card payments security standards an invoice should never include a full card primary account number (BT-87). At the moment PCI Security Standards Council has defined that the first 6 digits and last 4 digits are the maximum number of digits to be shown.',
+    'BR-52' => '[BR-52]-Each Additional supporting document (BG-24) shall contain a Supporting document reference (BT-122).',
+    'BR-53' => '[BR-53]-If the VAT accounting currency code (BT-6) is present, then the Invoice total VAT amount in accounting currency (BT-111) shall be provided.',
+    'BR-54' => '[BR-54]-Each Item attribute (BG-32) shall contain an Item attribute name (BT-160) and an Item attribute value (BT-161).',
+    'BR-55' => '[BR-55]-Each Preceding Invoice reference (BG-3) shall contain a Preceding Invoice reference (BT-25).',
+    'BR-56' => '[BR-56]-Each Seller tax representative party (BG-11) shall have a Seller tax representative VAT identifier (BT-63).',
+    'BR-57' => '[BR-57]-Each Deliver to address (BG-15) shall contain a Deliver to country code (BT-80).',
+    //BR-58
+    //BR-59
+    //BR-60
+    'BR-61' => '[BR-61]-If the Payment means type code (BT-81) means SEPA credit transfer, Local credit transfer or Non-SEPA international credit transfer, the Payment account identifier (BT-84) shall be present.',
+    'BR-62' => '[BR-62]-The Seller electronic address (BT-34) shall have a Scheme identifier.',
+    'BR-63' => '[BR-63]-The Buyer electronic address (BT-49) shall have a Scheme identifier.',
+    'BR-64' => '[BR-64]-The Item standard identifier (BT-157) shall have a Scheme identifier.',
+    'BR-65' => '[BR-65]-The Item classification identifier (BT-158) shall have a Scheme identifier.',
+    'BR-66' => '[BR-66]-An Invoice shall contain maximum one Payment Card account (BG-18).',
+    'BR-67' => '[BR-67]-An Invoice shall contain maximum one Payment Mandate (BG-19).',
+    //BR-68
+    //BR-69
 
     'BR-S-01' => '[BR-S-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Standard rated" shall contain in the VAT breakdown (BG-23) at least one VAT category code (BT-118) equal with "Standard rated".',
     'BR-S-02' => '[BR-S-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
@@ -223,6 +243,34 @@ return [
     'UBL-SR-52' => '[UBL-SR-52]-Document reference shall occur maximum once',
     'UBL-SR-53' => '[UBL-SR-53]-CompanyID (VAT Identifier) must be stated when providing the PartyTaxScheme/TaxScheme/ID.',
 
+    //BR-CO-01
+    //BR-CO-02
+    'BR-CO-03' => '[BR-CO-03]-Value added tax point date (BT-7) and Value added tax point date code (BT-8) are mutually exclusive.',
+    'BR-CO-04' => '[BR-CO-04]-Each Invoice line (BG-25) shall be categorized with an Invoiced item VAT category code (BT-151).',
+    'BR-CO-05' => '[BR-CO-05]-Document level allowance reason code (BT-98) and Document level allowance reason (BT-97) shall indicate the same type of allowance.',
+    'BR-CO-06' => '[BR-CO-06]-Document level charge reason code (BT-105) and Document level charge reason (BT-104) shall indicate the same type of charge.',
+    'BR-CO-07' => '[BR-CO-07]-Invoice line allowance reason code (BT-140) and Invoice line allowance reason (BT-139) shall indicate the same type of allowance reason.',
+    'BR-CO-08' => '[BR-CO-08]-Invoice line charge reason code (BT-145) and Invoice line charge reason (BT-144) shall indicate the same type of charge reason.',
+    'BR-CO-09' => '[BR-CO-09]-The Seller VAT identifier (BT-31), the Seller tax representative VAT identifier (BT-63) and the Buyer VAT identifier (BT-48) shall have a prefix in accordance with ISO code ISO 3166-1 alpha-2 by which the country of issue may be identified. Nevertheless, Greece may use the prefix ‘EL’.',
+    'BR-CO-10' => '[BR-CO-10]-Sum of Invoice line net amount (BT-106) = Σ Invoice line net amount (BT-131).',
+    'BR-CO-11' => '[BR-CO-11]-Sum of allowances on document level (BT-107) = Σ Document level allowance amount (BT-92).',
+    'BR-CO-12' => '[BR-CO-12]-Sum of charges on document level (BT-108) = Σ Document level charge amount (BT-99).',
+    'BR-CO-13' => '[BR-CO-13]-Invoice total amount without VAT (BT-109) = Σ Invoice line net amount (BT-131) - Sum of allowances on document level (BT-107) + Sum of charges on document level (BT-108).',
+    'BR-CO-14' => '[BR-CO-14]-Invoice total VAT amount (BT-110) = Σ VAT category tax amount (BT-117).',
+    'BR-CO-15' => '[BR-CO-15]-Invoice total amount with VAT (BT-112) = Invoice total amount without VAT (BT-109) + Invoice total VAT amount (BT-110).',
+    'BR-CO-16' => '[BR-CO-16]-Amount due for payment (BT-115) = Invoice total amount with VAT (BT-112) -Paid amount (BT-113) +Rounding amount (BT-114).',
+    'BR-CO-17' => '[BR-CO-17]-VAT category tax amount (BT-117) = VAT category taxable amount (BT-116) x (VAT category rate (BT-119) / 100), rounded to two decimals.',
+    'BR-CO-18' => '[BR-CO-18]-An Invoice shall at least have one VAT breakdown group (BG-23).',
+    'BR-CO-19' => '[BR-CO-19]-If Invoicing period (BG-14) is used, the Invoicing period start date (BT-73) or the Invoicing period end date (BT-74) shall be filled, or both.',
+    'BR-CO-20' => '[BR-CO-20]-If Invoice line period (BG-26) is used, the Invoice line period start date (BT-134) or the Invoice line period end date (BT-135) shall be filled, or both.',
+    'BR-CO-21' => '[BR-CO-21]-Each Document level allowance (BG-20) shall contain a Document level allowance reason (BT-97) or a Document level allowance reason code (BT-98), or both.',
+    'BR-CO-22' => '[BR-CO-22]-Each Document level charge (BG-21) shall contain a Document level charge reason (BT-104) or a Document level charge reason code (BT-105), or both.',
+    'BR-CO-23' => '[BR-CO-23]-Each Invoice line allowance (BG-27) shall contain an Invoice line allowance reason (BT-139) or an Invoice line allowance reason code (BT-140), or both.',
+    'BR-CO-24' => '[BR-CO-24]-Each Invoice line charge (BG-28) shall contain an Invoice line charge reason (BT-144) or an Invoice line charge reason code (BT-145), or both.',
+    'BR-CO-25' => '[BR-CO-25]-In case the Amount due for payment (BT-115) is positive, either the Payment due date (BT-9) or the Payment terms (BT-20) shall be present.',
+    'BR-CO-26' => '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.',
+
     #XRechnungUbl
     'PEPPOL-EN16931-R010' => 'Buyer electronic address MUST be provided',
+    'PEPPOL-EN16931-R020' => 'Seller electronic address MUST be provided'
 ];
