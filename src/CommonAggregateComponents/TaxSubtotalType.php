@@ -16,10 +16,10 @@ use UBL\UnqualifiedDataTypes\TextType;
 class TaxSubtotalType
 {
     public function __construct(
-        #[Assert\NotNull(message: '[BR-45]-Each VAT breakdown (BG-23) shall have a VAT category taxable amount (BT-116).')]
+        #[Assert\NotNull(message: 'BR-45')]
         #[SerializedName('TaxableAmount')]
         protected ?AmountType $taxableAmount = null,
-        #[Assert\NotNull(message: '[BR-46]-Each VAT breakdown (BG-23) shall have a VAT category tax amount (BT-117).')]
+        #[Assert\NotNull(message: 'BR-46')]
         #[SerializedName('TaxAmount')]
         protected ?AmountType $taxAmount = null,
         #[SerializedName('CalculationSequenceNumeric')]
@@ -39,7 +39,7 @@ class TaxSubtotalType
         #[Assert\Valid]
         #[Assert\Callback([self::class, 'validateTaxCategory'])]
         #[Assert\When("value?.getTaxScheme()?.getId()?.value == 'VAT'", [
-            new Assert\Expression('value.getId()', '[BR-47]-Each VAT breakdown (BG-23) shall be defined through a VAT category code (BT-118).'),
+            new Assert\Expression('value.getId()', 'BR-47'),
         ])]
         #[SerializedName('TaxCategory')]
         protected ?TaxCategoryType $taxCategory = null
@@ -226,7 +226,7 @@ class TaxSubtotalType
 
         if ($taxEnum && TaxCategoryCode::O !== $taxEnum) {
             $percentContext->validate($taxCategory->getPercent(), [
-                new Assert\NotNull(message: '[BR-48]-Each VAT breakdown (BG-23) shall have a VAT category rate (BT-119), except if the Invoice is not subject to VAT.')
+                new Assert\NotNull(message: 'BR-48')
             ]);
             // the correct percent value isn't validated there?
         }

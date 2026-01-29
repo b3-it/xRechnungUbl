@@ -870,6 +870,7 @@ class Invoice
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-49')
         ]);
 
+        // PaymentMeans PaymentDueDate should not be there anyway because of UBL-CR-412
         $paymentMeansDueDates = array_filter(array_map(
             fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentDueDate(),
             $this->getPaymentMeans()
@@ -878,7 +879,7 @@ class Invoice
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-45')
         ]);
         $paymentMeansCodeNames = array_filter(array_map(
-            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentMeansCode(),
+            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentMeansCode()->name,
             $this->getPaymentMeans()
         ));
         $context->getValidator()->inContext($context)->validate($paymentMeansCodeNames, [

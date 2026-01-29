@@ -23,7 +23,7 @@ class PaymentMeansType
 
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
-        #[Assert\NotNull(message: '[BR-49]-A Payment instruction (BG-16) shall specify the Payment means type code (BT-81).')]
+        #[Assert\NotNull(message: 'BR-49')]
         #[SerializedName('PaymentMeansCode')]
         protected ?CodeType $paymentMeansCode = null,
         #[SerializedName('PaymentDueDate')]
@@ -231,5 +231,9 @@ class PaymentMeansType
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
+        if (!$this->getPaymentMeansCode()?->value ||
+            is_null(PaymentMeansCode::tryFrom($this->getPaymentMeansCode()->value))) {
+            $context->buildViolation('BR-CL-16')->atPath('paymentMeansCode')->addViolation();
+        }
     }
 }

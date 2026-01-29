@@ -21,14 +21,35 @@ return [
     'BR-18' => '[BR-18]-The Seller tax representative name (BT-62) shall be provided in the Invoice, if the Seller (BG-4) has a Seller tax representative party (BG-11)',
     'BR-19' => '[BR-19]-The Seller tax representative postal address (BG-12) shall be provided in the Invoice, if the Seller (BG-4) has a Seller tax representative party (BG-11).',
     'BR-20' => '[BR-20]-The Seller tax representative postal address (BG-12) shall contain a Tax representative country code (BT-69), if the Seller (BG-4) has a Seller tax representative party (BG-11).',
-
+    'BR-21' => '[BR-21]-Each Invoice line (BG-25) shall have an Invoice line identifier (BT-126).',
+    'BR-22' => '[BR-22]-Each Invoice line (BG-25) shall have an Invoiced quantity (BT-129).',
+    'BR-23' => '[BR-23]-An Invoice line (BG-25) shall have an Invoiced quantity unit of measure code (BT-130).',
+    'BR-24' => '[BR-24]-Each Invoice line (BG-25) shall have an Invoice line net amount (BT-131).',
+    'BR-25' => '[BR-25]-Each Invoice line (BG-25) shall contain the Item name (BT-153).',
+    'BR-26' => '[BR-26]-Each Invoice line (BG-25) shall contain the Item net price (BT-146).',
+    'BR-27' => '[BR-27]-The Item net price (BT-146) shall NOT be negative.',
+    'BR-28' => '[BR-28]-The Item gross price (BT-148) shall NOT be negative.',
+    'BR-29' => '[BR-29]-If both Invoicing period start date (BT-73) and Invoicing period end date (BT-74) are given then the Invoicing period end date (BT-74) shall be later or equal to the Invoicing period start date (BT-73).',
     'BR-30' => '[BR-30]-If both Invoice line period start date (BT-134) and Invoice line period end date (BT-135) are given then the Invoice line period end date (BT-135) shall be later or equal to the Invoice line period start date (BT-134).',
     'BR-31' => '[BR-31]-Each Document level allowance (BG-20) shall have a Document level allowance amount (BT-92).',
     'BR-32' => '[BR-32]-Each Document level allowance (BG-20) shall have a Document level allowance VAT category code (BT-95).',
     'BR-33' => '[BR-33]-Each Document level allowance (BG-20) shall have a Document level allowance reason (BT-97) or a Document level allowance reason code (BT-98).',
+    //BR-34
+    //BR-35
     'BR-36' => '[BR-36]-Each Document level charge (BG-21) shall have a Document level charge amount (BT-99).',
     'BR-37' => '[BR-37]-Each Document level charge (BG-21) shall have a Document level charge VAT category code (BT-102).',
     'BR-38' => '[BR-38]-Each Document level charge (BG-21) shall have a Document level charge reason (BT-104) or a Document level charge reason code (BT-105).',
+    //BR-39
+    //BR-40
+    'BR-41' => '[BR-41]-Each Invoice line allowance (BG-27) shall have an Invoice line allowance amount (BT-136).',
+    'BR-42' => '[BR-42]-Each Invoice line allowance (BG-27) shall have an Invoice line allowance reason (BT-139) or an Invoice line allowance reason code (BT-140).',
+    'BR-43' => '[BR-43]-Each Invoice line charge (BG-28) shall have an Invoice line charge amount (BT-141).',
+    'BR-44' => '[BR-44]-Each Invoice line charge shall have an Invoice line charge reason or an invoice line allowance reason code.',
+    'BR-45' => '[BR-45]-Each VAT breakdown (BG-23) shall have a VAT category taxable amount (BT-116).',
+    'BR-46' => '[BR-46]-Each VAT breakdown (BG-23) shall have a VAT category tax amount (BT-117).',
+    'BR-47' => '[BR-47]-Each VAT breakdown (BG-23) shall be defined through a VAT category code (BT-118).',
+    'BR-48' => '[BR-48]-Each VAT breakdown (BG-23) shall have a VAT category rate (BT-119), except if the Invoice is not subject to VAT.',
+    'BR-49' => '[BR-49]-A Payment instruction (BG-16) shall specify the Payment means type code (BT-81).',
 
     'BR-S-01' => '[BR-S-01]-An Invoice that contains an Invoice line (BG-25), a Document level allowance (BG-20) or a Document level charge (BG-21) where the VAT category code (BT-151, BT-95 or BT-102) is "Standard rated" shall contain in the VAT breakdown (BG-23) at least one VAT category code (BT-118) equal with "Standard rated".',
     'BR-S-02' => '[BR-S-02]-An Invoice that contains an Invoice line (BG-25) where the Invoiced item VAT category code (BT-151) is "Standard rated" shall contain the Seller VAT Identifier (BT-31), the Seller tax registration identifier (BT-32) and/or the Seller tax representative VAT identifier (BT-63).',
@@ -144,7 +165,7 @@ return [
 
     'BR-CL-14' => '[BR-CL-14]-Country codes in an invoice MUST be coded using ISO code list 3166-1',
     'BR-CL-15' => '[BR-CL-15]-Country codes in an invoice MUST be coded using ISO code list 3166-1',
-
+    'BR-CL-16' => '[BR-CL-16]-Payment means in an invoice MUST be coded using UNCL4461 code list',
     'BR-CL-17' => '[BR-CL-17]-Invoice tax categories MUST be coded using UNCL5305 code list',
     'BR-CL-18' => '[BR-CL-18]-Invoice tax categories MUST be coded using UNCL5305 code list',
 

@@ -33,6 +33,7 @@ class InvoiceLineType
      * @param InvoiceLineType[] $subInvoiceLines
      */
     public function __construct(
+        #[Assert\NotNull(message: 'BR-21')]
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
         #[SerializedName('UUID')]
@@ -41,12 +42,12 @@ class InvoiceLineType
         #[SerializedName('Note')]
         protected array $notes = [],
         #[Assert\Sequentially(constraints: [
-            new Assert\NotNull(message: "[BR-22]-Each Invoice line (BG-25) shall have an Invoiced quantity (BT-129)."),
-            new Assert\Expression(expression: 'value.unitCode !== null', message: "[BR-23]-An Invoice line (BG-25) shall have an Invoiced quantity unit of measure code (BT-130).")
+            new Assert\NotNull(message: 'BR-22'),
+            new Assert\Expression(expression: 'value.unitCode !== null', message: 'BR-23')
         ])]
         #[SerializedName('InvoicedQuantity')]
         protected ?QuantityType $invoicedQuantity = null,
-        #[Assert\NotNull(message: '[BR-24]-Each Invoice line (BG-25) shall have an Invoice line net amount (BT-131).')]
+        #[Assert\NotNull(message: 'BR-24')]
         #[SerializedName('LineExtensionAmount')]
         protected ?AmountType $lineExtensionAmount = null,
         #[SerializedName('TaxPointDate')]
@@ -98,18 +99,9 @@ class InvoiceLineType
         #[SerializedName('WithholdingTaxTotal')]
         protected array $withholdingTaxTotals = [],
         #[Assert\Valid]
-        #[Assert\Sequentially([
-            new Assert\NotNull,
-            new Assert\Expression('value?.getName()?.value', message: '[BR-25]-Each Invoice line (BG-25) shall contain the Item name (BT-153).')
-        ])]
-        #[Assert\Valid]
         #[Assert\Callback(callback: [self::class, 'validateItem'])]
         #[SerializedName('Item')]
         protected ?ItemType $item = null,
-        #[Assert\Sequentially([
-            new Assert\Expression('value?.getPriceAmount()', message: '[BR-26]-Each Invoice line (BG-25) shall contain the Item net price (BT-146).'),
-            new Assert\Expression('value?.getPriceAmount().value >= 0', message: '[BR-27]-The Item net price (BT-146) shall NOT be negative.')
-        ])]
         #[Assert\Valid]
         #[Assert\Callback(callback: [self::class, 'validatePrice'])]
         #[SerializedName('Price')]
@@ -618,8 +610,14 @@ class InvoiceLineType
         ]);
     }
 
-    public static function validateItem(ItemType $item, ExecutionContextInterface $context): void
+    public static function validateItem(?ItemType $item, ExecutionContextInterface $context): void
     {
+        $context->getValidator()->inContext($context)->atPath('name')->validate($item?->getName()?->value, [
+            new Assert\NotBlank(message: 'BR-25'),
+        ]);
+        if (is_null($item)) {
+            return;
+        }
         foreach ($item->getCommodityClassifications() as $commodityClassification) {
             $context->getValidator()->inContext($context)->validate($commodityClassification, [
                 new Assert\When('value.getItemClassificationCode()', [
@@ -708,14 +706,10 @@ class InvoiceLineType
     {
         $indi = $allowanceCharge->getChargeIndicator() == Indicator::TRUE;
         $context->getValidator()->inContext($context)->atPath('amount')->validate($allowanceCharge->getAmount(), [
-            new Assert\NotNull(message: $indi ?
-                '[BR-43]-Each Invoice line charge (BG-28) shall have an Invoice line charge amount (BT-141).' :
-                '[BR-41]-Each Invoice line allowance (BG-27) shall have an Invoice line allowance amount (BT-136).')
+            new Assert\NotNull(message: $indi ? 'BR-43' : 'BR-41')
         ]);
         if (!$allowanceCharge->getAllowanceChargeReasonCode() && empty($allowanceCharge->getAllowanceChargeReasons())) {
-            $context->buildViolation( $indi ?
-                '[BR-44]-Each Invoice line charge shall have an Invoice line charge reason or an invoice line allowance reason code.' :
-                '[BR-42]-Each Invoice line allowance (BG-27) shall have an Invoice line allowance reason (BT-139) or an Invoice line allowance reason code (BT-140).'
+            $context->buildViolation( $indi ? 'BR-44' : 'BR-42'
             )->atPath('allowanceChargeReasonCode')->addViolation();
         }
         $context->getValidator()->inContext($context)->validate($allowanceCharge->getTaxCategories(), [
@@ -723,8 +717,15 @@ class InvoiceLineType
         ]);
     }
 
-    public static function validatePrice(PriceType $price, ExecutionContextInterface $context): void
+    public static function validatePrice(?PriceType $price, ExecutionContextInterface $context): void
     {
+        $context->getValidator()->inContext($context)->atPath('priceAmount')->validate($price?->getPriceAmount()?->value, [
+            new Assert\NotNull(message: 'BR-26'),
+            new Assert\PositiveOrZero(message: 'BR-27')
+        ]);
+        if (is_null($price)) {
+            return;
+        }
         $context->getValidator()->inContext($context)->atPath('allowanceCharges')->validate($price->getAllowanceCharges(), [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-37')
         ]);
