@@ -136,6 +136,9 @@ class Invoice
         protected ?TextType           $buyerReference = null,
         #[Assert\Valid]
         #[Assert\Count(max: 1, maxMessage: 'UBL-SR-08')]
+        #[Assert\All([
+            new Assert\Callback([self::class, 'validateInvoicePeriod'])
+        ])]
         #[SerializedName("InvoicePeriod")]
         protected array               $invoicePeriods = [],
         #[SerializedName("OrderReference")]
@@ -170,12 +173,7 @@ class Invoice
         #[SerializedName("AccountingSupplierParty")]
         protected ?SupplierPartyType  $accountingSupplierParty = null,
         #[Assert\Valid]
-        #[Assert\Sequentially([
-            new Assert\Expression('value?.getParty()?.getPostalAddress()', 'BR-10'),
-            new Assert\Expression('value.getParty().getPostalAddress()?.getCountry()?.identificationCode', 'BR-11'),
-            new Assert\Expression('value.getParty().getEndpointID()', 'PEPPOL-EN16931-R010'),
-            new Assert\Expression('value.getParty().getEndpointID().schemeID', 'BR-63'),
-        ])]
+        #[Assert\Callback([self::class, 'validateAccountingCustomerParty'])]
         #[SerializedName("AccountingCustomerParty")]
         protected ?CustomerPartyType  $accountingCustomerParty = null,
         #[Assert\Valid]
@@ -186,9 +184,7 @@ class Invoice
         #[SerializedName("SellerSupplierParty")]
         protected ?SupplierPartyType  $sellerSupplierParty = null,
         #[Assert\Valid]
-        #[Assert\When('value', [
-            new Assert\Expression('value.getPostalAddress()?.getCountry()?.identificationCode', message: 'BR-20'),
-        ])]
+        #[Assert\Callback([self::class, 'validateTaxRepresentativeParty'])]
         #[SerializedName("TaxRepresentativeParty")]
         protected ?PartyType          $taxRepresentativeParty = null,
         #[Assert\Valid]
@@ -887,74 +883,11 @@ class Invoice
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-05')
         ]);
 
-        if ($customerPartyParty = $this->getAccountingCustomerParty()?->getParty()) {
-            $registrationNames = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $customerPartyParty->getPartyLegalEntities()
-            ));
-
-            $context->getValidator()->inContext($context)->validate($registrationNames, [
-                new Assert\Count(
-                    min: 1, max: 1,
-                    minMessage: 'BR-07',
-                    maxMessage: 'UBL-SR-15'
-                ),
-            ]);
-
-            $partyIdentifications = array_map(
-                fn(PartyIdentificationType $identification) => $identification->id, $customerPartyParty->getPartyIdentifications()
-            );
-            $context->getValidator()->inContext($context)->validate($partyIdentifications, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-16'),
-            ]);
-
-            $legalCompanyIds = array_filter(array_map(
-                fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $customerPartyParty->getPartyLegalEntities()
-            ));
-            $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-17'),
-            ]);
-            $vatCompanyIds = array_map(
-                fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
-                array_filter($customerPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
-            );
-            $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-18'),
-            ]);
-
-            $partyNames = array_map(
-                fn(PartyNameType $partyName) => $partyName->name,
-                $customerPartyParty->getPartyNames()
-            );
-
-            $context->getValidator()->inContext($context)->validate($partyNames, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-40'),
-            ]);
-        }
-
-        if ($taxParty = $this->getTaxRepresentativeParty()) {
-            $context->getValidator()->inContext($context)->validate($taxParty->getPartyNames(), [
-                new Assert\Count(
-                    min: 1,
-                    max: 1,
-                    minMessage: 'BR-18',
-                    maxMessage: 'UBL-SR-22'
-                ),
-            ]);
-            $context->getValidator()->inContext($context)->validate($taxParty->getPostalAddress(), [
-                new Assert\NotNull(message: 'BR-19')
-            ]);
-
-            $taxPartyCompanyIds = array_filter(array_map(fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID(), $taxParty->getPartyTaxSchemes()));
-            $context->getValidator()->inContext($context)->validate($taxPartyCompanyIds, [
-                new Assert\Count(max: 1, maxMessage: 'UBL-SR-23'),
-            ]);
-        }
-
         $hasTaxSchemeParty = false;
         if ($supplierPartyParty = $this->getAccountingSupplierParty()?->getParty()) {
             $hasTaxSchemeParty = array_any($supplierPartyParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID());
         }
-        if (!$hasTaxSchemeParty && $taxParty) {
+        if (!$hasTaxSchemeParty && $taxParty = $this->getTaxRepresentativeParty()) {
             $hasTaxSchemeParty = array_any($taxParty->getPartyTaxSchemes(), fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getTaxScheme()->getId()->value === 'VAT' && $partyTaxScheme->getCompanyID());
         }
 
@@ -1185,6 +1118,18 @@ class Invoice
         return $sum;
     }
 
+    public static function validateInvoicePeriod(PeriodType $period, ExecutionContextInterface $periodContext): void
+    {
+        if (($period->getStartDate() || $period->getEndDate()) == empty($period->getDescriptionCodes())) {
+            $periodContext->addViolation('BR-CO-19');
+        }
+        if ($period->getStartDate() && $period->getEndDate()) {
+            $periodContext->getValidator()->inContext($periodContext)->validate($period->getEndDate(), [
+                new Assert\GreaterThanOrEqual($period->getStartDate(), 'BR-29'),
+            ]);
+        }
+    }
+
     public static function validateAccountingSupplierParty(?SupplierPartyType $supplierParty, ExecutionContextInterface $context): void
     {
         $context->getValidator()->inContext($context)->atPath('party')->validate($supplierParty?->getParty(), [
@@ -1271,6 +1216,116 @@ class Invoice
         $context->getValidator()->inContext($context)->validate($legalForms, [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-14'),
         ]);
+    }
+
+    public static function validateAccountingCustomerParty(?CustomerPartyType $customerParty, ExecutionContextInterface $context): void
+    {
+        $context->getValidator()->inContext($context)->atPath('party')->validate($customerParty?->getParty(), [
+            new Assert\Callback(self::validateAccountingCustomerPartyParty(...))
+        ]);
+    }
+    public static function validateAccountingCustomerPartyParty(?PartyType $party, ExecutionContextInterface $context): void
+    {
+        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
+            new Assert\NotNull(message: 'PEPPOL-EN16931-R010')
+        ]);
+        if (is_null($party)) {
+            return;
+        }
+        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
+            new Assert\NotNull(message: 'BR-63')
+        ]);
+
+        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party->getPostalAddress(), new Assert\Sequentially([
+            new Assert\NotNull(message: 'BR-10'),
+            new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
+            $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
+                new Assert\NotNull(message: 'BR-11'),
+            ])
+            )
+        ]));
+
+        $registrationNames = array_filter(array_map(
+            fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $party->getPartyLegalEntities()
+        ));
+
+        $context->getValidator()->inContext($context)->validate($registrationNames, [
+            new Assert\Count(
+                min: 1, max: 1,
+                minMessage: 'BR-07',
+                maxMessage: 'UBL-SR-15'
+            ),
+        ]);
+
+        $partyIdentifications = array_map(
+            fn(PartyIdentificationType $identification) => $identification->id, $party->getPartyIdentifications()
+        );
+        $context->getValidator()->inContext($context)->validate($partyIdentifications, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-16'),
+        ]);
+
+        $legalCompanyIds = array_filter(array_map(
+            fn(PartyLegalEntityType $legalEntity) => $legalEntity->getCompanyID(), $party->getPartyLegalEntities()
+        ));
+        $context->getValidator()->inContext($context)->validate($legalCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-17'),
+        ]);
+        $vatCompanyIds = array_map(
+            fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+            array_filter($party->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
+        );
+        $context->getValidator()->inContext($context)->validate($vatCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-18'),
+        ]);
+
+        $partyNames = array_map(
+            fn(PartyNameType $partyName) => $partyName->name,
+            $party->getPartyNames()
+        );
+
+        $context->getValidator()->inContext($context)->validate($partyNames, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-40'),
+        ]);
+    }
+
+    public static function validateTaxRepresentativeParty(?PartyType $party, ExecutionContextInterface $context): void
+    {
+        if (is_null($party)) {
+            return;
+        }
+
+        $context->getValidator()->inContext($context)->atPath('partyNames')->validate($party->getPartyNames(), [
+            new Assert\Count(
+                min: 1,
+                max: 1,
+                minMessage: 'BR-18',
+                maxMessage: 'UBL-SR-22'
+            ),
+        ]);
+
+        $taxPartyCompanyIds = array_filter(array_map(
+            fn(PartyTaxSchemeType $partyTaxScheme) => $partyTaxScheme->getCompanyID(),
+            $party->getPartyTaxSchemes()
+        ));
+        $context->getValidator()->inContext($context)->atPath('partyTaxSchemes')->validate($taxPartyCompanyIds, [
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-23'),
+        ]);
+        $vatCompanyIds = array_filter(array_map(
+            fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
+            array_filter($party->getPartyTaxSchemes(), fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getTaxScheme()?->getId()?->value === 'VAT')
+        ));
+        $context->getValidator()->inContext($context)->atPath('partyTaxSchemes')->validate($vatCompanyIds, [
+            new Assert\Count(min: 1, minMessage: 'BR-56'),
+        ]);
+
+        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party->getPostalAddress(), new Assert\Sequentially([
+            new Assert\NotNull(message: 'BR-19'),
+            new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
+            $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
+                new Assert\NotNull(message: 'BR-20'),
+            ])
+            )
+        ]));
     }
 
     public static function validateAllowanceCharge(AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void

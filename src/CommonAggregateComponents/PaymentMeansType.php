@@ -50,11 +50,6 @@ class PaymentMeansType
         protected ?CardAccountType $cardAccount = null,
         #[SerializedName('PayerFinancialAccount')]
         protected ?FinancialAccountType $payerFinancialAccount = null,
-        #[Assert\When(
-            'this.getPaymentMeansCode().value == 30 or this.getPaymentMeansCode().value == 36', [
-                new Assert\NotNull( message: 'BR-61')
-            ]
-        )]
         #[SerializedName('PayeeFinancialAccount')]
         protected ?FinancialAccountType $payeeFinancialAccount = null,
         #[SerializedName('CreditAccount')]
@@ -234,6 +229,19 @@ class PaymentMeansType
         if (!$this->getPaymentMeansCode()?->value ||
             is_null(PaymentMeansCode::tryFrom($this->getPaymentMeansCode()->value))) {
             $context->buildViolation('BR-CL-16')->atPath('paymentMeansCode')->addViolation();
+        }
+        if (in_array($this->getPaymentMeansCode()?->value, ['30', '36'])) {
+            $context->getValidator()->inContext($context)->atPath('payeeFinancialAccount')
+                ->validate($this->getPayeeFinancialAccount(), new Assert\Sequentially([
+                    new Assert\NotNull(message: 'BR-61'),
+                    new Assert\Callback(
+                        function (?FinancialAccountType $payeeFinancialAccount, ExecutionContextInterface $accountContext) {
+                            $accountContext->getValidator()->inContext($accountContext)->atPath('id')->validate($payeeFinancialAccount->getId()?->value, [
+                                new Assert\NotBlank(message: 'BR-50'),
+                            ]);
+                        }
+                    )
+                ]));
         }
     }
 }

@@ -23,6 +23,7 @@ class AllowanceChargeType
     public function __construct(
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
+        #[Assert\NotNull]
         #[SerializedName('ChargeIndicator')]
         protected ?Indicator $chargeIndicator = null,
         #[SerializedName('AllowanceChargeReasonCode')]
@@ -35,6 +36,7 @@ class AllowanceChargeType
         protected ?Indicator $prepaidIndicator = null,
         #[SerializedName('SequenceNumeric')]
         protected ?NumericType $sequenceNumeric = null,
+        #[Assert\NotNull]
         #[SerializedName('Amount')]
         protected ?AmountType $amount = null,
         #[SerializedName('BaseAmount')]

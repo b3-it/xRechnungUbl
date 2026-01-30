@@ -728,7 +728,20 @@ class InvoiceLineType
             return;
         }
         $context->getValidator()->inContext($context)->atPath('allowanceCharges')->validate($price->getAllowanceCharges(), [
-            new Assert\Count(max: 1, maxMessage: 'UBL-SR-37')
+            new Assert\Count(max: 1, maxMessage: 'UBL-SR-37'),
+            new Assert\All([
+                new Assert\Callback(InvoiceLineType::validatePriceAllowanceCharge(...))
+            ]),
+        ]);
+    }
+
+    public static function validatePriceAllowanceCharge(?AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void
+    {
+        if (is_null($allowanceCharge)) {
+            return;
+        }
+        $context->getValidator()->inContext($context)->atPath('baseAmount')->validate($allowanceCharge->getBaseAmount()?->value, [
+            new Assert\PositiveOrZero(message: 'BR-28')
         ]);
     }
 }

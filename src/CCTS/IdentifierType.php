@@ -11,7 +11,7 @@ class IdentifierType
      */
     public function __construct(
         #[SerializedName('#')]
-        public ?string $value = null,
+        public string $value = '',
         #[SerializedName('@schemeID')]
         public ?string $schemeID = null,
         #[SerializedName('@schemeName')]
