@@ -733,6 +733,9 @@ class InvoiceLineType
                 new Assert\Callback(InvoiceLineType::validatePriceAllowanceCharge(...))
             ]),
         ]);
+        $context->getValidator()->inContext($context)->atPath('baseQuantity')->validate($price->getBaseQuantity()?->value, [
+            new Assert\Positive(message: 'PEPPOL-EN16931-R121', groups: ['XRechnung'])
+        ]);
     }
 
     public static function validatePriceAllowanceCharge(?AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void

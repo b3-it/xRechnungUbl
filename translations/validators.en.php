@@ -271,6 +271,12 @@ return [
     'BR-CO-26' => '[BR-CO-26]-In order for the buyer to automatically identify a supplier, the Seller identifier (BT-29), the Seller legal registration identifier (BT-30) and/or the Seller VAT identifier (BT-31) shall be present.',
 
     #XRechnungUbl
+    'BR-DE-1' => '[BR-DE-1] Eine Rechnung (INVOICE) muss Angaben zu "PAYMENT INSTRUCTIONS" (BG-16) enthalten.',
+    'BR-DE-15' => '[BR-DE-15] Das Element "Buyer reference" (BT-10) muss übermittelt werden.',
+    'PEPPOL-EN16931-R001' => 'Business process MUST be provided.',
     'PEPPOL-EN16931-R010' => 'Buyer electronic address MUST be provided',
-    'PEPPOL-EN16931-R020' => 'Seller electronic address MUST be provided'
+    'PEPPOL-EN16931-R020' => 'Seller electronic address MUST be provided',
+
+    'PEPPOL-EN16931-R053' => 'Only one tax total with tax subtotals MUST be provided.',
+    'PEPPOL-EN16931-R121' => 'Base quantity MUST be a positive number above zero.',
 ];

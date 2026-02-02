@@ -86,6 +86,7 @@ class Invoice
         #[Assert\NotNull(message: 'BR-01')]
         #[SerializedName("CustomizationID")]
         protected ?IdentifierType     $customizationID = null,
+        #[Assert\NotNull(message: 'PEPPOL-EN16931-R001', groups: ['XRechnung'])]
         #[SerializedName("ProfileID")]
         protected ?IdentifierType     $profileID = null,
         #[SerializedName("ProfileExecutionID")]
@@ -132,6 +133,8 @@ class Invoice
         protected ?TextType           $accountingCost = null,
         #[SerializedName("LineCountNumeric")]
         protected ?NumericType        $lineCountNumeric = null,
+        #[Assert\Valid]
+        #[Assert\Count(max: 1, maxMessage: 'BR-DE-15', groups: ['XRechnung'])]
         #[SerializedName("BuyerReference")]
         protected ?TextType           $buyerReference = null,
         #[Assert\Valid]
@@ -194,6 +197,7 @@ class Invoice
         #[SerializedName("DeliveryTerms")]
         protected ?DeliveryTermsType  $deliveryTerms = null,
         #[Assert\Valid]
+        #[Assert\Count(min: 1, minMessage: 'BR-DE-1', groups: ['XRechnung'])]
         #[SerializedName("PaymentMeans")]
         protected array               $paymentMeans = [],
         #[SerializedName("PaymentTerms")]
@@ -894,14 +898,17 @@ class Invoice
         /**
          * @var $taxSubTotals TaxSubtotalType[]
          */
-        $taxSubTotals = [];
-        foreach ($this->getTaxTotals() as $taxTotal) {
-            array_push($taxSubTotals, ...$taxTotal->getTaxSubtotals());
-        }
+        $taxSubTotals = array_merge([], ...array_map(
+            fn(TaxTotalType $taxTotal) => $taxTotal->getTaxSubtotals(),
+            $this->getTaxTotals()
+        ));
         $context->getValidator()->inContext($context)->validate($taxSubTotals, [
             new Assert\Count(
                 min: 1,
                 minMessage: 'BR-CO-18'
+            ),
+            new Assert\Count(
+                exactly: 1, exactMessage: 'PEPPOL-EN16931-R053', groups: ['XRechnung']
             )
         ]);
         $classifiedTaxCategories = [];
@@ -1139,17 +1146,7 @@ class Invoice
 
     public static function validateAccountingSupplierPartyParty(?PartyType $party, ExecutionContextInterface $context): void
     {
-        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
-            new Assert\NotNull(message: 'PEPPOL-EN16931-R020')
-        ]);
-        if (is_null($party)) {
-            return;
-        }
-        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
-            new Assert\NotNull(message: 'BR-62')
-        ]);
-
-        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party->getPostalAddress(), new Assert\Sequentially([
+        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party?->getPostalAddress(), new Assert\Sequentially([
             new Assert\NotNull(message: 'BR-08'),
             new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
                 $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
@@ -1157,6 +1154,15 @@ class Invoice
                 ])
             )
         ]));
+        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
+            new Assert\NotNull(message: 'PEPPOL-EN16931-R020', groups: ['XRechnung'])
+        ]);
+        if (is_null($party)) {
+            return;
+        }
+        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
+            new Assert\NotNull(message: 'BR-62')
+        ]);
 
         $companyIds = array_filter(array_map(
             fn(PartyTaxSchemeType $taxScheme) => $taxScheme->getCompanyID(),
@@ -1226,17 +1232,7 @@ class Invoice
     }
     public static function validateAccountingCustomerPartyParty(?PartyType $party, ExecutionContextInterface $context): void
     {
-        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
-            new Assert\NotNull(message: 'PEPPOL-EN16931-R010')
-        ]);
-        if (is_null($party)) {
-            return;
-        }
-        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
-            new Assert\NotNull(message: 'BR-63')
-        ]);
-
-        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party->getPostalAddress(), new Assert\Sequentially([
+        $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party?->getPostalAddress(), new Assert\Sequentially([
             new Assert\NotNull(message: 'BR-10'),
             new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
             $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
@@ -1244,6 +1240,16 @@ class Invoice
             ])
             )
         ]));
+
+        $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
+            new Assert\NotNull(message: 'PEPPOL-EN16931-R010', groups: ['XRechnung'])
+        ]);
+        if (is_null($party)) {
+            return;
+        }
+        $context->getValidator()->inContext($context)->atPath('endpointId.schemeID')->validate($party->getEndpointID()?->schemeID, [
+            new Assert\NotNull(message: 'BR-63')
+        ]);
 
         $registrationNames = array_filter(array_map(
             fn(PartyLegalEntityType $legalEntity) => $legalEntity->getRegistrationName(), $party->getPartyLegalEntities()
