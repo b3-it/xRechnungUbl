@@ -23,7 +23,7 @@ class AllowanceChargeType
     public function __construct(
         #[SerializedName('ID')]
         protected ?IdentifierType $id = null,
-        #[Assert\NotNull]
+        #[Assert\NotNull]//PEPPOL-EN16931-R043 is hardcoded via enum
         #[SerializedName('ChargeIndicator')]
         protected ?Indicator $chargeIndicator = null,
         #[SerializedName('AllowanceChargeReasonCode')]

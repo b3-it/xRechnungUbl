@@ -12,6 +12,7 @@
   <cbc:BuyerReference>991-33333Test-33</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
     <cac:Party>
+      <cbc:EndpointID schemeID="EM">seller@email.de</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>Max-Dohrn-Str. 8–10</cbc:StreetName>
         <cbc:CityName>Berlin</cbc:CityName>
@@ -38,6 +39,7 @@
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
+      <cbc:EndpointID schemeID="EM">buyer@info.de</cbc:EndpointID>
       <cac:PostalAddress>
         <cbc:StreetName>Hyperbelweg 16</cbc:StreetName>
         <cbc:CityName>Pfungstedt</cbc:CityName>

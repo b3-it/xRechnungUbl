@@ -965,7 +965,7 @@ class Invoice
                 rule03: 'BR-E-03',
                 rule04: 'BR-E-04');
         }
-        $this->checkTaxableAmount($taxSubTotals, $context, 'Z', 'BR-E-08');
+        $this->checkTaxableAmount($taxSubTotals, $context, 'E', 'BR-E-08');
 
         $this->validateByVatCategoryRule01($taxSubTotals, $classifiedTaxCategories, $allowanceTaxCategories, $context, 'AE',
             'BR-AE-01'
@@ -1119,7 +1119,7 @@ class Invoice
             && array_any($invoiceLine->getItem()->getClassifiedTaxCategories(), $filter)
                  ) as $invoiceLine) {
             $sum += $invoiceLine->getLineExtensionAmount()?->value ?? 0;
-            $sum += $this->sumInvoiceLines($invoiceLine->getSubInvoiceLines(), $filter);
+            //$sum += $this->sumInvoiceLines($invoiceLine->getSubInvoiceLines(), $filter);
         }
         return $sum;
     }
@@ -1144,12 +1144,12 @@ class Invoice
 
     public static function validateInvoicePeriod(PeriodType $period, ExecutionContextInterface $periodContext): void
     {
-        if (($period->getStartDate() || $period->getEndDate()) == empty($period->getDescriptionCodes())) {
+        if (($period->getStartDate() || $period->getEndDate()) !== empty($period->getDescriptionCodes())) {
             $periodContext->addViolation('BR-CO-19');
         }
         if ($period->getStartDate() && $period->getEndDate()) {
             $periodContext->getValidator()->inContext($periodContext)->validate($period->getEndDate(), [
-                new Assert\GreaterThanOrEqual($period->getStartDate(), 'BR-29'),
+                new Assert\GreaterThanOrEqual($period->getStartDate(), message: 'BR-29'),
             ]);
         }
     }
@@ -1407,6 +1407,17 @@ class Invoice
         $context->getValidator()->inContext($context)->atPath('allowanceChargeReasons')->validate($allowanceCharge->getAllowanceChargeReasons(), [
             new Assert\Count(max: 1, maxMessage: $indi ? 'UBL-SR-31' : 'UBL-SR-30')
         ]);
+
+        if ($allowanceCharge->getMultiplierFactorNumeric()) {
+            $context->getValidator()->inContext($context)->atPath('baseAmount')->validate($allowanceCharge->getBaseAmount(), [
+                new Assert\NotNull(message: 'PEPPOL-EN16931-R041', groups: ['XRechnung'])
+            ]);
+        }
+        if ($allowanceCharge->getBaseAmount()) {
+            $context->getValidator()->inContext($context)->atPath('multiplierFactorNumeric')->validate($allowanceCharge->getMultiplierFactorNumeric(), [
+                new Assert\NotNull(message: 'PEPPOL-EN16931-R042', groups: ['XRechnung'])
+            ]);
+        }
     }
     public static function validateAllowanceChargeTaxCategory(TaxCategoryType $taxCategory, ExecutionContextInterface $context, AllowanceChargeType $payload): void
     {

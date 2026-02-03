@@ -282,7 +282,12 @@ class PaymentMeansType
                 new Assert\Iban(message: 'BR-DE-20', groups: ['XRechnung'])
             ]);
         }
-
+        if (in_array($this->getPaymentMeansCode()?->value, ['49', '59'])) {
+            $context->getValidator()->inContext($context)->atPath('paymentMandate.id')->validate(
+                $this->getPaymentMandate()?->getId()?->value, [
+                new Assert\Iban(message: 'PEPPOL-EN16931-R061', groups: ['XRechnung'])
+            ]);
+        }
     }
 
     protected function validateParts(ExecutionContextInterface $context, Constraint $payeeFinancialAccount, Constraint $cardAccount, Constraint $paymentMandate): void

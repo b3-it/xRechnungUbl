@@ -41,6 +41,7 @@ class InvoiceLineType
         #[Assert\Count(max: 1, maxMessage: 'UBL-SR-34')]
         #[SerializedName('Note')]
         protected array $notes = [],
+        #[Assert\Valid]
         #[Assert\Sequentially(constraints: [
             new Assert\NotNull(message: 'BR-22'),
             new Assert\Expression(expression: 'value.unitCode !== null', message: 'BR-23')
@@ -60,6 +61,7 @@ class InvoiceLineType
         protected ?CodeType $paymentPurposeCode = null,
         #[SerializedName('FreeOfChargeIndicator')]
         protected ?Indicator $freeOfChargeIndicator = null,
+        #[Assert\Valid]
         #[Assert\Count(max: 1, maxMessage: 'UBL-SR-36')]
         #[Assert\All([
             new Assert\Expression('value.getStartDate() or value.getEndDate()', message: 'BR-CO-20'),
@@ -77,7 +79,11 @@ class InvoiceLineType
         protected array $receiptLineReferences = [],
         #[SerializedName('BillingReference')]
         protected array $billingReferences = [],
+        #[Assert\Valid]
         #[Assert\Count(max: 1, maxMessage: 'UBL-SR-52')]
+        #[Assert\All(
+            new Assert\Callback([self::class, 'validateDocumentReference'])
+        )]
         #[SerializedName('DocumentReference')]
         protected array $documentReferences = [],
         #[SerializedName('PricingReference')]
@@ -704,6 +710,13 @@ class InvoiceLineType
         }
     }
 
+    public static function validateDocumentReference(DocumentReferenceType $documentReference, ExecutionContextInterface $context): void
+    {
+        $context->getValidator()->inContext($context)->atPath('documentTypeCode')->validate($documentReference->getDocumentTypeCode(), [
+            new Assert\EqualTo('130', message: 'PEPPOL-EN16931-R101', groups: ['XRechnung'])
+        ]);
+    }
+
     public static function validateAllowanceCharge(AllowanceChargeType  $allowanceCharge, ExecutionContextInterface $context): void
     {
         $indi = $allowanceCharge->getChargeIndicator() == Indicator::TRUE;
@@ -717,10 +730,25 @@ class InvoiceLineType
         $context->getValidator()->inContext($context)->validate($allowanceCharge->getTaxCategories(), [
             new Assert\Count(exactly: 0, exactMessage: '[UBL-CR-558]-A UBL invoice should not include the InvoiceLine AllowanceCharge TaxCategory')
         ]);
+
+        if ($allowanceCharge->getMultiplierFactorNumeric()) {
+            $context->getValidator()->inContext($context)->atPath('baseAmount')->validate($allowanceCharge->getBaseAmount(), [
+                new Assert\NotNull(message: 'PEPPOL-EN16931-R041', groups: ['XRechnung'])
+            ]);
+        }
+        if ($allowanceCharge->getBaseAmount()) {
+            $context->getValidator()->inContext($context)->atPath('multiplierFactorNumeric')->validate($allowanceCharge->getMultiplierFactorNumeric(), [
+                new Assert\NotNull(message: 'PEPPOL-EN16931-R042', groups: ['XRechnung'])
+            ]);
+        }
     }
 
     public static function validatePrice(?PriceType $price, ExecutionContextInterface $context): void
     {
+        /**
+         * @var $object InvoiceLineType
+         */
+        $object = $context->getObject();
         $context->getValidator()->inContext($context)->atPath('priceAmount')->validate($price?->getPriceAmount()?->value, [
             new Assert\NotNull(message: 'BR-26'),
             new Assert\PositiveOrZero(message: 'BR-27')
@@ -737,6 +765,9 @@ class InvoiceLineType
         $context->getValidator()->inContext($context)->atPath('baseQuantity')->validate($price->getBaseQuantity()?->value, [
             new Assert\Positive(message: 'PEPPOL-EN16931-R121', groups: ['XRechnung'])
         ]);
+        $context->getValidator()->inContext($context)->atPath('baseQuantity.unitCode')->validate($price->getBaseQuantity()?->unitCode, [
+            new Assert\EqualTo($object->getInvoicedQuantity()->unitCode, message: 'PEPPOL-EN16931-R130', groups: ['XRechnung'])
+        ]);
     }
 
     public static function validatePriceAllowanceCharge(?AllowanceChargeType $allowanceCharge, ExecutionContextInterface $context): void
@@ -746,6 +777,10 @@ class InvoiceLineType
         }
         $context->getValidator()->inContext($context)->atPath('baseAmount')->validate($allowanceCharge->getBaseAmount()?->value, [
             new Assert\PositiveOrZero(message: 'BR-28')
+        ]);
+
+        $context->getValidator()->inContext($context)->atPath('baseAmount')->validate($allowanceCharge->getChargeIndicator(), [
+            new Assert\EqualTo(Indicator::FALSE, message: 'PEPPOL-EN16931-R044', groups: ['XRechnung'])
         ]);
     }
 }

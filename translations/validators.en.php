@@ -304,6 +304,14 @@ return [
     'PEPPOL-EN16931-R010' => 'Buyer electronic address MUST be provided',
     'PEPPOL-EN16931-R020' => 'Seller electronic address MUST be provided',
 
+    'PEPPOL-EN16931-R041' => 'Allowance/charge base amount MUST be provided when allowance/charge percentage is provided.',
+    'PEPPOL-EN16931-R042' => 'Allowance/charge percentage MUST be provided when allowance/charge base amount is provided.',
+    'PEPPOL-EN16931-R043' => "Allowance/charge ChargeIndicator value MUST equal 'true' or 'false'",
+    'PEPPOL-EN16931-R044' => "Charge on price level is NOT allowed. Only value 'false' allowed.",
+
     'PEPPOL-EN16931-R053' => 'Only one tax total with tax subtotals MUST be provided.',
+    'PEPPOL-EN16931-R061' => 'Mandate reference MUST be provided for direct debit.',
+    'PEPPOL-EN16931-R101' => 'Element Document reference can only be used for Invoice line object',
     'PEPPOL-EN16931-R121' => 'Base quantity MUST be a positive number above zero.',
+    'PEPPOL-EN16931-R130' => 'Unit code of price base quantity MUST be same as invoiced quantity.',
 ];

@@ -257,7 +257,7 @@ class TaxSubtotalType
                 }
                 break;
             case TaxCategoryCode::Z:
-                if (!$taxCategory->getTaxExemptionReasonCode() && empty($taxCategory->getTaxExemptionReasons())) {
+                if ($taxCategory->getTaxExemptionReasonCode() || !empty($taxCategory->getTaxExemptionReasons())) {
                     $context->buildViolation(
                         'BR-Z-10'
                     )
