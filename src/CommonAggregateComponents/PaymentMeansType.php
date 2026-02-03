@@ -6,6 +6,7 @@ namespace UBL\CommonAggregateComponents;
 
 use DateTimeInterface;
 use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use UBL\Peppol\PaymentMeansCode;
@@ -230,7 +231,16 @@ class PaymentMeansType
             is_null(PaymentMeansCode::tryFrom($this->getPaymentMeansCode()->value))) {
             $context->buildViolation('BR-CL-16')->atPath('paymentMeansCode')->addViolation();
         }
-        if (in_array($this->getPaymentMeansCode()?->value, ['30', '36'])) {
+        // UBL-SR-27 can't happen because of XML
+        // UBL-SR-28 can't happen because of XML
+
+        if ($paymentMandate = $this->getPaymentMandate()) {
+            $context->getValidator()->inContext($context)->validate($paymentMandate->getPayerFinancialAccount()?->getId(), [
+                new Assert\NotNull(message: 'BR-DE-31', groups: ['XRechnung']),
+            ]);
+        }
+
+        if (in_array($this->getPaymentMeansCode()?->value, ['30', '58'])) {
             $context->getValidator()->inContext($context)->atPath('payeeFinancialAccount')
                 ->validate($this->getPayeeFinancialAccount(), new Assert\Sequentially([
                     new Assert\NotNull(message: 'BR-61'),
@@ -242,6 +252,52 @@ class PaymentMeansType
                         }
                     )
                 ]));
+            $this->validateParts($context,
+                new Assert\NotNull(message: 'BR-DE-23-a', groups: ['XRechnung']), // same as BR-61
+                new Assert\IsNull(message: 'BR-DE-23-b', groups: ['XRechnung']),
+                new Assert\IsNull(message: 'BR-DE-23-b', groups: ['XRechnung'])
+            );
+            if ('58' === $this->getPaymentMeansCode()?->value) {
+                $context->getValidator()->inContext($context)->atPath('payeeFinancialAccount.id')->validate(
+                    $this->getPayeeFinancialAccount()?->getId()?->value, [
+                    new Assert\Iban(message: 'BR-DE-19', groups: ['XRechnung'])
+                ]);
+            }
         }
+        if (in_array($this->getPaymentMeansCode()?->value, ['48','54','55'])) {
+            $this->validateParts($context,
+                new Assert\IsNull(message: 'BR-DE-24-a', groups: ['XRechnung']),
+                new Assert\NotNull(message: 'BR-DE-24-b', groups: ['XRechnung']),
+                new Assert\IsNull(message: 'BR-DE-24-b', groups: ['XRechnung'])
+            );
+        }
+        if ('59' === $this->getPaymentMeansCode()?->value) {
+            $this->validateParts($context,
+                new Assert\IsNull(message: 'BR-DE-24-a', groups: ['XRechnung']),
+                new Assert\IsNull(message: 'BR-DE-24-b', groups: ['XRechnung']),
+                new Assert\NotNull(message: 'BR-DE-24-b', groups: ['XRechnung'])
+            );
+            $context->getValidator()->inContext($context)->atPath('paymentMandate.payerFinancialAccount.id')->validate(
+                $this->getPaymentMandate()?->getPayerFinancialAccount()?->getId()?->value, [
+                new Assert\Iban(message: 'BR-DE-20', groups: ['XRechnung'])
+            ]);
+        }
+
+    }
+
+    protected function validateParts(ExecutionContextInterface $context, Constraint $payeeFinancialAccount, Constraint $cardAccount, Constraint $paymentMandate): void
+    {
+        $context->getValidator()->inContext($context)->atPath('payeeFinancialAccount')
+            ->validate($this->getPayeeFinancialAccount(), [
+                $payeeFinancialAccount,
+            ]);
+        $context->getValidator()->inContext($context)->atPath('cardAccount')
+            ->validate($this->getCardAccount(), [
+                $cardAccount,
+            ]);
+        $context->getValidator()->inContext($context)->atPath('paymentMandate')
+            ->validate($this->getPaymentMandate(), [
+                $paymentMandate,
+            ]);
     }
 }

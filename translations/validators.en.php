@@ -272,7 +272,34 @@ return [
 
     #XRechnungUbl
     'BR-DE-1' => '[BR-DE-1] Eine Rechnung (INVOICE) muss Angaben zu "PAYMENT INSTRUCTIONS" (BG-16) enthalten.',
+    'BR-DE-2' => '[BR-DE-2] Die Gruppe "SELLER CONTACT" (BG-6) muss übermittelt werden.',
+    'BR-DE-3' => '[BR-DE-3] Das Element "Seller city" (BT-37) muss übermittelt werden.',
+    'BR-DE-4' => '[BR-DE-4] Das Element "Seller post code" (BT-38) muss übermittelt werden.',
+    'BR-DE-5' => '[BR-DE-5] Das Element "Seller contact point" (BT-41) muss übermittelt werden.',
+    'BR-DE-6' => '[BR-DE-6] Das Element "Seller contact telephone number" (BT-42) muss übermittelt werden.',
+    'BR-DE-7' => '[BR-DE-7] Das Element "Seller contact email address" (BT-43) muss übermittelt werden.',
+    'BR-DE-8' => '[BR-DE-8] Das Element "Buyer city" (BT-52) muss übermittelt werden.',
+    'BR-DE-9' => '[BR-DE-9] Das Element "Buyer post code" (BT-53) muss übermittelt werden.',
+    'BR-DE-14' => '[BR-DE-14] Das Element "VAT category rate" (BT-119) muss übermittelt werden.',
     'BR-DE-15' => '[BR-DE-15] Das Element "Buyer reference" (BT-10) muss übermittelt werden.',
+
+    'BR-DE-19' => '[BR-DE-19] "Payment account identifier" (BT-84) soll eine korrekte IBAN enthalten, wenn in "Payment means type code" (BT-81) mit dem Code 58 SEPA als Zahlungsmittel gefordert wird.',
+    'BR-DE-20' => '[BR-DE-20] "Debited account identifier" (BT-91) soll eine korrekte IBAN enthalten, wenn in "Payment means type code" (BT-81) mit dem Code 59 SEPA als Zahlungsmittel gefordert wird.',
+
+    'BR-DE-23-a' => '[BR-DE-23-a] Wenn BT-81 "Payment means type code" einen Schlüssel für Überweisungen enthält (30, 58), muss BG-17 "CREDIT TRANSFER" übermittelt werden.',
+    'BR-DE-23-b' => '[BR-DE-23-b] Wenn BT-81 "Payment means type code" einen Schlüssel für Überweisungen enthält (30, 58), dürfen BG-18 und BG-19 nicht übermittelt werden.',
+    'BR-DE-24-a' => '[BR-DE-24-a] Wenn BT-81 "Payment means type code" einen Schlüssel für Kartenzahlungen enthält (48, 54, 55), muss genau BG-18 "PAYMENT CARD INFORMATION" übermittelt werden.',
+    'BR-DE-24-b' => '[BR-DE-24-b] Wenn BT-81 "Payment means type code" einen Schlüssel für Kartenzahlungen enthält (48, 54, 55), dürfen BG-17 und BG-19 nicht übermittelt werden.',
+    'BR-DE-25-a' => '[BR-DE-25-a] Wenn BT-81 "Payment means type code" einen Schlüssel für Lastschriften enthält (59), muss genau BG-19 "DIRECT DEBIT" übermittelt werden.',
+    'BR-DE-25-b' => '[BR-DE-25-b] Wenn BT-81 "Payment means type code" einen Schlüssel für Lastschriften enthält (59), dürfen BG-17 und BG-18 nicht übermittelt werden.',
+
+    'BR-DE-27' => '[BR-DE-27] In BT-42 sollen mindestens drei Ziffern enthalten sein.',
+    'BR-DE-28' => '[BR-DE-28] In BT-43 soll genau ein @-Zeichen enthalten sein, welches nicht von einem Leerzeichen, einem Punkt, aber mindestens zwei Zeichen auf beiden Seiten flankiert werden soll. Ein Punkt sollte nicht am Anfang oder am Ende stehen.',
+
+    'BR-DE-31' => '[BR-DE-31] Wenn "DIRECT DEBIT" BG-19 vorhanden ist, dann muss "Debited account identifier" BT-91 übermittelt werden.',
+
+    'BR-DEX-03' => '[BR-DEX-03] Eine Sub Invoice Line (BG-DEX-01) muss genau eine "SUB INVOICE LINE VAT INFORMATION" (BG-DEX-06) enthalten.',
+
     'PEPPOL-EN16931-R001' => 'Business process MUST be provided.',
     'PEPPOL-EN16931-R010' => 'Buyer electronic address MUST be provided',
     'PEPPOL-EN16931-R020' => 'Seller electronic address MUST be provided',

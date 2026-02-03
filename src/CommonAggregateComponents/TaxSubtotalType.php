@@ -230,6 +230,10 @@ class TaxSubtotalType
             ]);
             // the correct percent value isn't validated there?
         }
+        // this excludes O for XRechnung
+        $percentContext->validate($taxCategory->getPercent(), [
+            new Assert\NotNull(message: 'BR-DE-14', groups: ['XRechnung'])
+        ]);
 
         switch ($taxEnum) {
             case TaxCategoryCode::E:

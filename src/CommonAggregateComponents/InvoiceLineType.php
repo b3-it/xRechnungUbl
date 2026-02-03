@@ -596,8 +596,9 @@ class InvoiceLineType
     {
         foreach ($this->getSubInvoiceLines() as $subInvoiceLine) {
             if ($subItem = $subInvoiceLine->getItem()) {
+                // TODO move to Invoice for check against XR-EXTENSION-ID
                 $context->getValidator()->inContext($context)->validate($subItem->getClassifiedTaxCategories(), [
-                    new Assert\Count(exactly: 1, exactMessage: '[BR-DEX-03] Eine Sub Invoice Line (BG-DEX-01) muss genau eine "SUB INVOICE LINE VAT INFORMATION" (BG-DEX-06) enthalten.')
+                    new Assert\Count(exactly: 1, exactMessage: 'BR-DEX-03', groups: ['XRechnung'])
                 ]);
             }
         }

@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use UBL\CommonAggregateComponents\AddressType;
 use UBL\CommonAggregateComponents\AllowanceChargeType;
 use UBL\CommonAggregateComponents\BillingReferenceType;
+use UBL\CommonAggregateComponents\ContactType;
 use UBL\CommonAggregateComponents\CustomerPartyType;
 use UBL\CommonAggregateComponents\DeliveryTermsType;
 use UBL\CommonAggregateComponents\DeliveryType;
@@ -882,6 +883,22 @@ class Invoice
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-46')
         ]);
 
+
+        $paymentMeansCardAccounts = array_filter(array_map(
+            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getCardAccount(),
+            $this->getPaymentMeans()
+        ));
+        $context->getValidator()->inContext($context)->validate($paymentMeansCardAccounts, [
+            new Assert\Count(max: 1, maxMessage: 'BR-66')
+        ]);
+        $paymentMeansPaymentMandates = array_filter(array_map(
+            fn(PaymentMeansType $paymentMeans) => $paymentMeans->getPaymentMandate(),
+            $this->getPaymentMeans()
+        ));
+        $context->getValidator()->inContext($context)->validate($paymentMeansPaymentMandates, [
+            new Assert\Count(max: 1, maxMessage: 'BR-67')
+        ]);
+
         $paymentTermsNotes = array_merge([], ...array_map(fn(PaymentTermsType $paymentTerms) => $paymentTerms->getNotes(), $this->getPaymentTerms()));
         $context->getValidator()->inContext($context)->validate($paymentTermsNotes, [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-05')
@@ -1148,11 +1165,17 @@ class Invoice
     {
         $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party?->getPostalAddress(), new Assert\Sequentially([
             new Assert\NotNull(message: 'BR-08'),
-            new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
-                $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
+            new Assert\Callback(callback: function (AddressType $address, ExecutionContextInterface $addressContext) {
+                $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address->getCountry()?->identificationCode, [
                     new Assert\NotNull(message: 'BR-09'),
-                ])
-            )
+                ]);
+                $addressContext->getValidator()->inContext($addressContext)->atPath('cityName')->validate($address->getCityName()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-3', groups: ['XRechnung'])
+                ]);
+                $addressContext->getValidator()->inContext($addressContext)->atPath('postalZone')->validate($address->getPostalZone()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-4', groups: ['XRechnung'])
+                ]);
+            }),
         ]));
         $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
             new Assert\NotNull(message: 'PEPPOL-EN16931-R020', groups: ['XRechnung'])
@@ -1222,6 +1245,25 @@ class Invoice
         $context->getValidator()->inContext($context)->validate($legalForms, [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-14'),
         ]);
+
+
+        $context->getValidator()->inContext($context)->atPath('contact')->validate($party?->getContact(), new Assert\Sequentially([
+            new Assert\NotNull(message: 'BR-DE-2', groups: ['XRechnung']),
+            new Assert\Callback(callback: function (?ContactType $contact, ExecutionContextInterface $contactContext) {
+                $contactContext->getValidator()->inContext($contactContext)->atPath('name')->validate($contact->getName()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-5', groups: ['XRechnung'])
+                ]);
+                $contactContext->getValidator()->inContext($contactContext)->atPath('telephone')->validate($contact->getTelephone()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-6', groups: ['XRechnung']),
+                    new Assert\Regex('/.*([0-9].*){3,}.*/', message: 'BR-DE-27', groups: ['XRechnungWarning']),
+                ]);
+                $contactContext->getValidator()->inContext($contactContext)->atPath('electronicMail')->validate($contact->getElectronicMail()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-7', groups: ['XRechnung']),
+                    new Assert\Email(message: 'BR-DE-28', groups: ['XRechnungWarning']),
+                ]);
+
+            }, groups: ['XRechnung']),
+        ]));
     }
 
     public static function validateAccountingCustomerParty(?CustomerPartyType $customerParty, ExecutionContextInterface $context): void
@@ -1234,11 +1276,18 @@ class Invoice
     {
         $context->getValidator()->inContext($context)->atPath('postalAddress')->validate($party?->getPostalAddress(), new Assert\Sequentially([
             new Assert\NotNull(message: 'BR-10'),
-            new Assert\Callback(callback: fn(?AddressType $address, ExecutionContextInterface $addressContext) =>
-            $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address?->getCountry()?->identificationCode, [
-                new Assert\NotNull(message: 'BR-11'),
-            ])
-            )
+            new Assert\Callback(callback: function (AddressType $address, ExecutionContextInterface $addressContext) {
+                $addressContext->getValidator()->inContext($addressContext)->atPath('country')->validate($address->getCountry()?->identificationCode, [
+                    new Assert\NotNull(message: 'BR-11'),
+                ]);
+
+                $addressContext->getValidator()->inContext($addressContext)->atPath('cityName')->validate($address->getCityName()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-8', groups: ['XRechnung'])
+                ]);
+                $addressContext->getValidator()->inContext($addressContext)->atPath('postalZone')->validate($address->getPostalZone()?->value, [
+                    new Assert\NotBlank(message: 'BR-DE-9', groups: ['XRechnung'])
+                ]);
+            }),
         ]));
 
         $context->getValidator()->inContext($context)->atPath('endpointId')->validate($party?->getEndpointId()?->value, [
