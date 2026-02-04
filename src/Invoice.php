@@ -852,10 +852,11 @@ class Invoice
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
-        $context->getValidator()->inContext($context)->validate($this->getDocumentCurrencyCode()?->value, [
+        $context->getValidator()->inContext($context)->atPath('documentCurrencyCode')->validate($this->getDocumentCurrencyCode()?->value, [
             new Assert\Currency(message: 'BR-CL-04')
         ]);
-        $context->getValidator()->inContext($context)->validate($this->getTaxCurrencyCode()?->value, [
+        $context->getValidator()->inContext($context)->atPath('taxCurrencyCode')->validate($this->getTaxCurrencyCode()?->value, [
+            new Assert\NotEqualTo($this->getDocumentCurrencyCode()?->value, message: 'PEPPOL-EN16931-R005', groups: ['XRechnung']),
             new Assert\Currency(message: 'BR-CL-05')
         ]);
 
@@ -863,7 +864,7 @@ class Invoice
             fn (PeriodType $period) => $period->getDescriptionCodes(),
             $this->getInvoicePeriods()
         ));
-        $context->getValidator()->inContext($context)->validate($invoicePeriodDescriptionCodes, [
+        $context->getValidator()->inContext($context)->atPath('invoicePeriods.descriptionCodes')->validate($invoicePeriodDescriptionCodes, [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-49')
         ]);
 
@@ -898,6 +899,16 @@ class Invoice
         $context->getValidator()->inContext($context)->validate($paymentMeansPaymentMandates, [
             new Assert\Count(max: 1, maxMessage: 'BR-67')
         ]);
+        if (empty(!$paymentMeansPaymentMandates)) {
+            $sepaSupplier = array_filter(
+                $this->getAccountingSupplierParty()?->getParty()?->getPartyIdentifications() ?? [],
+                fn(PartyIdentificationType $partyIdentification) => $partyIdentification->id->schemeID === 'SEPA',
+            );
+
+            $context->getValidator()->inContext($context)->atPath('accountingSupplierParty.party.partyIdentifications')->validate($sepaSupplier, [
+                new Assert\Count(min: 1, minMessage: 'BR-DE-30', groups: ['XRechnung']),
+            ]);
+        }
 
         $paymentTermsNotes = array_merge([], ...array_map(fn(PaymentTermsType $paymentTerms) => $paymentTerms->getNotes(), $this->getPaymentTerms()));
         $context->getValidator()->inContext($context)->validate($paymentTermsNotes, [
@@ -926,6 +937,14 @@ class Invoice
             ),
             new Assert\Count(
                 exactly: 1, exactMessage: 'PEPPOL-EN16931-R053', groups: ['XRechnung']
+            )
+        ]);
+        $taxWithoutSubTotals = array_filter($this->getTaxTotals(),
+            fn(TaxTotalType $taxTotal) => empty($taxTotal->getTaxSubtotals())
+        );
+        $context->getValidator()->inContext($context)->validate($taxWithoutSubTotals, [
+            new Assert\Count(
+                exactly: $this->getTaxCurrencyCode() ? 1 : 0, exactMessage: 'PEPPOL-EN16931-R054', groups: ['XRechnung']
             )
         ]);
         $classifiedTaxCategories = [];
@@ -1247,7 +1266,7 @@ class Invoice
         ]);
 
 
-        $context->getValidator()->inContext($context)->atPath('contact')->validate($party?->getContact(), new Assert\Sequentially([
+        $context->getValidator()->inContext($context)->atPath('contact')->validate($party->getContact(), new Assert\Sequentially([
             new Assert\NotNull(message: 'BR-DE-2', groups: ['XRechnung']),
             new Assert\Callback(callback: function (?ContactType $contact, ExecutionContextInterface $contactContext) {
                 $contactContext->getValidator()->inContext($contactContext)->atPath('name')->validate($contact->getName()?->value, [
@@ -1315,7 +1334,7 @@ class Invoice
         $partyIdentifications = array_map(
             fn(PartyIdentificationType $identification) => $identification->id, $party->getPartyIdentifications()
         );
-        $context->getValidator()->inContext($context)->validate($partyIdentifications, [
+        $context->getValidator()->inContext($context)->atPath('partyIdentifications')->validate($partyIdentifications, [
             new Assert\Count(max: 1, maxMessage: 'UBL-SR-16'),
         ]);
 
