@@ -5,13 +5,13 @@ namespace UBL\Serializer;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\PropertyInfo\PropertyTypeExtractorInterface;
-use Symfony\Component\PropertyInfo\Type;
-use Symfony\Component\Serializer\NameConverter\AdvancedNameConverterInterface;
+use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
-class PrefixNameConverter implements AdvancedNameConverterInterface
+class PrefixNameConverter implements NameConverterInterface
 {
     public function __construct(
-        protected AdvancedNameConverterInterface $decorated,
+        protected NameConverterInterface $decorated,
         protected PropertyTypeExtractorInterface $typeExtractor,
         protected array $classes = [],
         protected array $namespaces = []
@@ -44,14 +44,9 @@ class PrefixNameConverter implements AdvancedNameConverterInterface
             return '';
         }
 
-        $types = $this->typeExtractor->getTypes($class, $propertyName);
-
-        if ($types) {
-            foreach ($types as $type) {
-                $prefix = $this->getPrefixByType($type);
-                if ($prefix) {
-                    return $prefix;
-                }
+        if ($type = $this->typeExtractor->getType($class, $propertyName)) {
+            if ($prefix = $this->getPrefixByType($type)) {
+                return $prefix;
             }
         }
         return '';
@@ -62,22 +57,21 @@ class PrefixNameConverter implements AdvancedNameConverterInterface
      */
     protected function getPrefixByType(Type $type): ?string
     {
-        if ($type->getBuiltinType() == Type::BUILTIN_TYPE_OBJECT) {
+        if ($type instanceof Type\NullableType) {
+            return $this->getPrefixByType($type->getWrappedType());
+        } else if ($type instanceof Type\ObjectType) {
             $className = $type->getClassName();
             if (isset($this->classes[$className])) {
                 return $this->classes[$className] . ":";
             }
-            $reflectionClass = new ReflectionClass($type->getClassName());
+            $reflectionClass = new ReflectionClass($className);
             $namespace = $reflectionClass->getNamespaceName();
             if (isset($this->namespaces[$namespace])) {
                 return $this->namespaces[$namespace] . ":";
             }
-        } else if ($type->isCollection()) {
-            foreach ($type->getCollectionValueTypes() as $valueType) {
-                $prefix = $this->getPrefixByType($valueType);
-                if ($prefix) {
-                    return $prefix;
-                }
+        } else if ($type instanceof Type\CollectionType) {
+            if ($prefix = $this->getPrefixByType($type->getCollectionValueType())) {
+                return $prefix;
             }
         }
         return null;
