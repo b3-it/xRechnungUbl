@@ -32,7 +32,7 @@ class TestData {
     /**
      * @var string[]
      */
-    #[SerializedPath('[PartyName][][Name]')]
+    #[SerializedName('PartyName')]
     public array $name = [];
 }
 
@@ -54,10 +54,15 @@ class EncodeTest extends TestCase
 
         $encoder = new XmlEncoder();
         $data = $encoder->decode($str, 'xml');
-        var_dump($data);
+
+        $this->assertArrayHasKey('cac:PartyName', $data);
+        $this->assertCount(2, $data['cac:PartyName']);
+        $this->assertSame('[Seller trading name A]', $data['cac:PartyName'][0]['cbc:Name']);
+        $this->assertSame('[Seller trading name B]', $data['cac:PartyName'][1]['cbc:Name']);
 
         $newStr = $encoder->encode($data, 'xml');
-        var_dump($newStr);
+        $this->assertStringContainsString('[Seller trading name A]', $newStr);
+        $this->assertStringContainsString('[Seller trading name B]', $newStr);
     }
 
     public function testEncode()
@@ -66,7 +71,10 @@ class EncodeTest extends TestCase
         $data->name = ['A', 'B'];
 
         $str = $this->getSerializer()->serialize($data, 'xml');
-        var_dump($str);
+        $this->assertXmlStringEqualsXmlString(
+            '<response><PartyName>A</PartyName><PartyName>B</PartyName></response>',
+            $str
+        );
     }
 
     protected function getSerializer(): SerializerInterface

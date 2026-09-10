@@ -21,6 +21,6 @@ class ArrayTest extends AbstractTypeTest
         $data = new TestData();
 
         $str = $this->serialize($data);
-        var_dump($str);
+        $this->assertXmlStringEqualsXmlString('<response/>', $str);
     }
 }

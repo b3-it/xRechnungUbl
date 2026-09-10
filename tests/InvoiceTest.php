@@ -23,9 +23,24 @@ class InvoiceTest extends AbstractTypeTest
 
         $invoice->setLegalMonetaryTotal($legalMonetaryTotal);
 
-        echo($this->serialize($invoice, [
+        $str = $this->serialize($invoice, [
             XmlEncoder::ROOT_NODE_NAME => Invoice::ROOT_NAME,
-        ]));
+        ]);
+
+        $expected = <<<XML
+            <ubl:Invoice xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+                         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+              <cac:LegalMonetaryTotal>
+                <cbc:LineExtensionAmount currencyID="EUR">314.86</cbc:LineExtensionAmount>
+                <cbc:TaxExclusiveAmount currencyID="EUR">314.86</cbc:TaxExclusiveAmount>
+                <cbc:TaxInclusiveAmount currencyID="EUR">336.90</cbc:TaxInclusiveAmount>
+                <cbc:PayableAmount currencyID="EUR">336.90</cbc:PayableAmount>
+              </cac:LegalMonetaryTotal>
+            </ubl:Invoice>
+            XML;
+
+        $this->assertXmlStringEqualsXmlString($expected, $str);
     }
 
     protected function importFileAndSerialize(string $filename): void
