@@ -22,7 +22,10 @@ abstract class AbstractTypeTest extends TestCase
         $xml_doc = new DOMDocument();
         $xml_doc->formatOutput = true;
         $xml_doc->preserveWhiteSpace = false;
+        libxml_use_internal_errors(true);
         $xml_doc->loadXML($xml);
+        libxml_clear_errors();
+        libxml_use_internal_errors(false);
         // set the XML namespace to work with XSL
         $xml_doc->documentElement->setAttribute('xmlns:' . CommonBasicComponents::PREFIX, CommonBasicComponents::NS);
         $xml_doc->documentElement->setAttribute('xmlns:' . CommonAggregateComponents::PREFIX, CommonAggregateComponents::NS);
