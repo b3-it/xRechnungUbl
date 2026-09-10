@@ -102,4 +102,4 @@ The test suite (`tests/`) includes round-trip serialization/deserialization test
 
 ## License
 
-No license has been specified for this project yet.
+This project is licensed under the [Open Software License 3.0 (OSL-3.0)](LICENSE).
