@@ -1,10 +1,10 @@
 {
     "name": "b3it/x-rechnung-ubl",
     "type": "library",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "OSL-3.0",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-dom": "*",
         "ext-xml": "*",
         "ext-xsl": "*",
